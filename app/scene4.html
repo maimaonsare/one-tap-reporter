@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Scene4Render</title>
+<style>
+  :root { --green:#3DBE29; --greenB:#5cff3d; --red:#ff3b2f; --redD:#c2170c; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:1920px; height:1080px; overflow:hidden; background:#000; }
+  body { font-family:"Segoe UI", Arial, sans-serif; color:#fff; position:relative; }
+  .shot { position:absolute; inset:0; opacity:0; }
+  .hdr { position:absolute; top:70px; left:0; right:0; text-align:center; font-size:56px; font-weight:900;
+    letter-spacing:6px; color:#ff5b4f; text-shadow:0 0 34px rgba(255,59,47,.6); }
+
+  /* ---------- S1 vanishing ---------- */
+  #s1phone { position:absolute; left:430px; top:250px; width:300px; height:620px; border-radius:44px;
+    background:#0b0d0b; border:4px solid #232a24; box-shadow:0 30px 90px rgba(0,0,0,.8);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:30px; }
+  #s1phone .nm { font-size:34px; font-weight:700; color:#dfe; }
+  #s1phone .st { font-size:26px; color:#ff6b5f; }
+  #s1phone .eb { width:90px; height:90px; border-radius:50%; background:#e02b1d;
+    box-shadow:0 0 30px rgba(255,59,47,.7); display:flex; align-items:center; justify-content:center; }
+  #ticket { position:absolute; left:900px; top:330px; width:420px; height:280px; border-radius:24px;
+    background:linear-gradient(160deg, #141a14, #0a0e0a); border:4px solid #3a4a3c;
+    box-shadow:0 24px 80px rgba(0,0,0,.7); overflow:hidden; }
+  #ticket .th { padding:20px 26px; font-size:34px; font-weight:800; letter-spacing:4px; color:#cfe3c9;
+    border-bottom:2px dashed #3a4a3c; }
+  #ticket .tl { margin:14px 26px; height:16px; border-radius:8px; background:#233026; }
+  #tprog { position:absolute; bottom:0; left:0; height:8px; background:var(--green); box-shadow:0 0 16px var(--green); }
+  #stamp { position:absolute; left:920px; top:400px; font-size:74px; font-weight:900; letter-spacing:4px;
+    color:var(--red); border:8px solid var(--red); border-radius:16px; padding:10px 30px;
+    transform:rotate(-14deg); text-shadow:0 0 30px rgba(255,59,47,.7);
+    box-shadow:0 0 40px rgba(255,59,47,.4), inset 0 0 30px rgba(255,59,47,.2); }
+  .tparticle { position:absolute; border-radius:2px; background:var(--red); box-shadow:0 0 8px rgba(255,59,47,.8); }
+  #s1lines { position:absolute; left:1420px; top:340px; width:420px; }
+  #s1lines div { font-size:38px; font-weight:700; color:#e9d8d6; margin-bottom:26px; opacity:0; }
+  #s1lines div b { color:#ff5b4f; }
+
+  /* ---------- S2 scale map ---------- */
+  #s2 { background:radial-gradient(ellipse at 50% 60%, #0a1208 0%, #010301 70%); perspective:900px; }
+  #map { position:absolute; left:-240px; top:180px; width:2400px; height:1300px;
+    transform:rotateX(42deg); transform-origin:center top; }
+  #map .grid { position:absolute; inset:0; opacity:.5;
+    background:
+      repeating-linear-gradient(rgba(61,190,41,.16) 0 2px, transparent 2px 110px),
+      repeating-linear-gradient(90deg, rgba(61,190,41,.16) 0 2px, transparent 2px 130px); }
+  .pin { position:absolute; width:34px; height:46px; }
+  .pin svg { filter:drop-shadow(0 0 8px rgba(255,59,47,.8)); }
+  .pin.grey svg { filter:none; opacity:.35; }
+  #counter { position:absolute; right:150px; top:120px; background:rgba(8,4,3,.9); border:3px solid var(--red);
+    border-radius:24px; padding:30px 48px; text-align:center; box-shadow:0 0 50px rgba(255,59,47,.35); }
+  #counter .n { font-size:100px; font-weight:900; color:#ff5b4f; text-shadow:0 0 34px rgba(255,59,47,.8);
+    font-variant-numeric:tabular-nums; }
+  #counter .l { font-size:30px; font-weight:800; letter-spacing:3px; color:#e9c2be; }
+  #unrep { position:absolute; left:150px; bottom:110px; background:rgba(6,6,6,.9); border:3px solid #4a4a4a;
+    border-radius:22px; padding:26px 40px; }
+  #unrep .l { font-size:28px; font-weight:800; letter-spacing:3px; color:#bdbdbd; }
+  #unrep .g { margin-top:16px; font-size:44px; letter-spacing:8px; color:#5a5a5a; }
+
+  /* ---------- S3 reactive model ---------- */
+  #flow { position:absolute; left:0; right:0; top:360px; display:flex; justify-content:center; gap:60px; align-items:center; }
+  .node { width:280px; border-radius:26px; background:#101410; border:4px solid #3a4a3c; padding:34px 20px;
+    text-align:center; position:relative; }
+  .node .ic { height:110px; display:flex; align-items:center; justify-content:center; }
+  .node .nl { font-size:28px; font-weight:800; letter-spacing:2px; margin-top:18px; color:#dfe6dd; }
+  .node.alert { border-color:var(--red); }
+  .arrow { width:70px; height:10px; position:relative; background:repeating-linear-gradient(90deg, #6a7a6c 0 14px, transparent 14px 26px); }
+  .arrow::after { content:""; position:absolute; right:-4px; top:-9px; border-left:22px solid #6a7a6c;
+    border-top:14px solid transparent; border-bottom:14px solid transparent; }
+  #reactive { position:absolute; left:50%; top:58%; transform:translate(-50%,-50%) rotate(-12deg);
+    font-size:170px; font-weight:900; letter-spacing:10px; color:var(--red);
+    border:14px solid var(--red); border-radius:26px; padding:10px 60px;
+    text-shadow:0 0 50px rgba(255,59,47,.8); box-shadow:0 0 80px rgba(255,59,47,.5), inset 0 0 50px rgba(255,59,47,.25); }
+
+  /* ---------- S4 interrogation loop ---------- */
+  #s4center { position:absolute; left:50%; top:52%; width:220px; height:220px; margin:-110px 0 0 -110px;
+    border-radius:50%; background:#131713; border:5px solid #3a4a3c;
+    display:flex; align-items:center; justify-content:center; }
+  .loopchip { position:absolute; width:170px; height:170px; margin:-85px 0 0 -85px; border-radius:50%;
+    background:rgba(16,10,9,.95); border:4px solid var(--red);
+    box-shadow:0 0 30px rgba(255,59,47,.4);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; }
+  .loopchip .cl { font-size:20px; font-weight:800; letter-spacing:1px; color:#ffb9b3; text-align:center; line-height:1.15; }
+  #looparrows { position:absolute; inset:0; }
+  .qcard { position:absolute; background:#f4f6f2; color:#1a1414; border-radius:18px; padding:18px 28px;
+    font-size:32px; font-weight:800; box-shadow:0 12px 40px rgba(0,0,0,.6); white-space:nowrap; }
+  #outcome { position:absolute; right:120px; top:250px; width:480px; background:rgba(14,8,7,.95);
+    border:3px solid var(--red); border-radius:26px; padding:36px 42px;
+    box-shadow:0 0 50px rgba(255,59,47,.3); }
+  #outcome h4 { font-size:34px; font-weight:900; letter-spacing:3px; color:#ff8d84; }
+  #outcome .oi { font-size:29px; font-weight:700; color:#e9d8d6; margin-top:22px; opacity:0; }
+  #outcome .oi b { color:var(--red); margin-right:14px; }
+
+  /* ---------- S5 beyond calls ---------- */
+  #s5 { perspective:1200px; }
+  .holo { position:absolute; top:230px; width:480px; height:560px; border-radius:30px;
+    background:linear-gradient(165deg, rgba(10,16,11,.96), rgba(4,8,5,.96));
+    border:3px solid var(--green); box-shadow:0 0 50px rgba(61,190,41,.25);
+    padding:34px 38px; }
+  .holo h4 { font-size:30px; font-weight:800; letter-spacing:2px; text-align:center; line-height:1.3; color:#cfe3c9; }
+  .holo .body { display:flex; flex-direction:column; align-items:center; margin-top:40px; gap:26px; }
+  #h1 { left:150px; } #h2 { left:720px; } #h3 { left:1290px; }
+  .mpesa { font-size:42px; font-weight:900; color:var(--greenB); font-style:italic; }
+  .procspin { width:64px; height:64px; border-radius:50%; border:7px solid rgba(61,190,41,.2); border-top-color:var(--greenB); }
+  .proct { font-size:30px; color:#9fb3a2; font-weight:600; }
+  .pos { width:220px; height:280px; border-radius:18px; background:#171b17; border:3px solid #3a4a3c;
+    display:flex; flex-direction:column; align-items:center; padding-top:24px; gap:14px; }
+  .pos .scr { width:170px; height:90px; border-radius:8px; background:#0d240f; border:2px solid #2c5a2e;
+    font-size:19px; color:#7fdc6f; padding:10px; line-height:1.3; }
+  .pos .keys { display:grid; grid-template-columns:repeat(3,38px); gap:8px; }
+  .pos .keys i { height:26px; border-radius:5px; background:#2a332b; display:block; }
+  .bell { position:relative; font-size:60px; }
+  .bell::after { content:""; position:absolute; left:-10px; top:50%; width:86px; height:7px; background:var(--red);
+    transform:rotate(-40deg); border-radius:4px; box-shadow:0 0 12px rgba(255,59,47,.8); }
+  .spamnum { font-size:36px; font-weight:700; color:#dfe; letter-spacing:2px; }
+  .spamlbl { font-size:64px; font-weight:900; letter-spacing:4px; color:var(--red);
+    text-shadow:0 0 30px rgba(255,59,47,.8); }
+  #s5cap { position:absolute; left:0; right:0; bottom:110px; text-align:center; }
+  #s5cap span { display:inline-block; border:3px solid var(--red); border-radius:18px; padding:20px 44px;
+    font-size:40px; font-weight:800; color:#ff8d84; background:rgba(14,6,5,.9); }
+
+  /* ---------- S6 thesis ---------- */
+  #s6 { background:#010201; }
+  .sonar { position:absolute; left:50%; top:50%; border-radius:50%;
+    border:3px solid rgba(92,255,61,.8); box-shadow:0 0 30px rgba(61,190,41,.4); }
+  .gdot { position:absolute; width:9px; height:9px; border-radius:50%; background:var(--greenB);
+    box-shadow:0 0 14px var(--green); }
+  #s6net { position:absolute; inset:0; }
+  #thesis1, #thesis2 { position:absolute; left:0; right:0; text-align:center; font-weight:800; }
+  #thesis1 { top:36%; font-size:56px; color:#dff5da; text-shadow:0 0 24px rgba(61,190,41,.4); }
+  #thesis2 { top:50%; font-size:74px; font-weight:900; color:#fff; text-shadow:0 0 40px rgba(92,255,61,.7); }
+  #greenfill { position:absolute; inset:0; background:radial-gradient(circle, rgba(92,255,61,.85), rgba(20,120,10,.9) 60%); }
+
+  #vignette { position:absolute; inset:0; pointer-events:none;
+    background:radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.55) 100%); }
+  #blackout { position:absolute; inset:0; background:#000; opacity:0; }
+</style>
+</head>
+<body>
+
+<!-- S1: the vanishing (0-11) -->
+<div class="shot" id="s1">
+  <div class="hdr">THE VANISHING</div>
+  <div id="s1phone">
+    <div class="nm">Safaricom</div>
+    <div class="st">Call Ended</div>
+    <div class="eb"><svg viewBox="0 0 24 24" width="46" height="46" style="transform:rotate(135deg)"><path fill="#fff" d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.4.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.8 21 3 13.2 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg></div>
+  </div>
+  <div id="ticket">
+    <div class="th">TICKET</div>
+    <div class="tl" style="width:70%"></div>
+    <div class="tl" style="width:55%"></div>
+    <div class="tl" style="width:62%"></div>
+    <div id="tprog"></div>
+  </div>
+  <div id="stamp">NOT CREATED</div>
+  <div id="tphost"></div>
+  <div id="s1lines">
+    <div>No ticket.</div>
+    <div>No diagnostic data.</div>
+    <div>No alert to engineering.</div>
+    <div><b>The telco never even knows it happened.</b></div>
+  </div>
+</div>
+
+<!-- S2: the scale (11-25) -->
+<div class="shot" id="s2">
+  <div class="hdr" style="color:#ff5b4f;">THE SCALE</div>
+  <div id="map"><div class="grid"></div><div id="pinhost"></div></div>
+  <div id="counter"><div class="n" id="cnum">1</div><div class="l">SIMILAR CASES</div></div>
+  <div id="unrep"><div class="l">UNREPORTED CASES</div><div class="g">👥 👥 👥 👥 👥</div></div>
+</div>
+
+<!-- S3: reactive model (25-36) -->
+<div class="shot" id="s3">
+  <div class="hdr">THE REACTIVE MODEL</div>
+  <div id="flow">
+    <div class="node" id="n0">
+      <div class="ic"><svg viewBox="0 0 24 24" width="90" height="90"><circle cx="12" cy="8" r="4" fill="#cfd8cf"/><path fill="#cfd8cf" d="M4 20c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5v1H4z"/></svg></div>
+      <div class="nl">CUSTOMER</div>
+    </div>
+    <div class="arrow" id="a0"></div>
+    <div class="node alert" id="n1">
+      <div class="ic"><svg viewBox="0 0 24 24" width="94" height="94"><path fill="#ff3b2f" d="M12 2 1 21h22L12 2zm0 6 .5 7h-1L12 8zm0 11.2a1.3 1.3 0 1 1 0-2.6 1.3 1.3 0 0 1 0 2.6z"/></svg></div>
+      <div class="nl" style="color:#ff8d84">BROKEN PROCESS</div>
+    </div>
+    <div class="arrow" id="a1"></div>
+    <div class="node" id="n2">
+      <div class="ic"><svg viewBox="0 0 24 24" width="90" height="90"><circle cx="12" cy="12" r="9" fill="none" stroke="#cfd8cf" stroke-width="2"/><path stroke="#cfd8cf" stroke-width="2" stroke-linecap="round" d="M12 7v5l3.5 2"/></svg></div>
+      <div class="nl">LONG DELAY</div>
+    </div>
+    <div class="arrow" id="a2"></div>
+    <div class="node" id="n3">
+      <div class="ic"><svg viewBox="0 0 24 24" width="90" height="90"><path fill="#cfd8cf" d="M4 21V7l6-4v18H4zm8 0V9l8 3v9h-8zm2-7h2v2h-2v-2zm0 4h2v2h-2v-2zM6 8h2v2H6V8zm0 4h2v2H6v-2z"/></svg></div>
+      <div class="nl">BUSINESS AWARENESS</div>
+    </div>
+  </div>
+  <div id="reactive">REACTIVE</div>
+</div>
+
+<!-- S4: interrogation loop (36-56) -->
+<div class="shot" id="s4">
+  <div class="hdr">THE INTERROGATION LOOP</div>
+  <svg id="looparrows" width="1920" height="1080"></svg>
+  <div id="s4center"><svg viewBox="0 0 24 24" width="120" height="120"><circle cx="12" cy="9" r="4" fill="#cfd8cf"/><path fill="#cfd8cf" d="M5 21c0-3.6 3.1-6 7-6s7 2.4 7 6H5z"/><path fill="none" stroke="#3DBE29" stroke-width="1.6" d="M5.5 9a6.5 6.5 0 0 1 13 0"/><rect x="3.6" y="8.4" width="3" height="4.6" rx="1.4" fill="#3DBE29"/><rect x="17.4" y="8.4" width="3" height="4.6" rx="1.4" fill="#3DBE29"/></svg></div>
+  <div id="chiphost"></div>
+  <div id="qhost"></div>
+  <div id="outcome">
+    <h4>OUTCOME</h4>
+    <div class="oi"><b>✕</b>Escalated Multiple Times</div>
+    <div class="oi"><b>✕</b>Closed Without Resolution</div>
+    <div class="oi"><b>✕</b>Issue Returns</div>
+    <div class="oi"><b>✕</b>Customer Frustrated</div>
+  </div>
+</div>
+
+<!-- S5: beyond calls (56-71) -->
+<div class="shot" id="s5">
+  <div class="hdr" style="color:#ff5b4f;">BEYOND NETWORK ISSUES</div>
+  <div class="holo" id="h1">
+    <h4>DELAYED M-PESA<br>MESSAGES</h4>
+    <div class="body">
+      <div class="mpesa">M-PESA</div>
+      <div class="procspin" id="pspin"></div>
+      <div class="proct" id="ptext">Message Delayed 20 Minutes</div>
+      <svg viewBox="0 0 24 24" width="64" height="64"><circle cx="12" cy="12" r="9" fill="none" stroke="#9fb3a2" stroke-width="2"/><path stroke="#9fb3a2" stroke-width="2" stroke-linecap="round" d="M12 7v5l3.5 2"/></svg>
+    </div>
+  </div>
+  <div class="holo" id="h2">
+    <h4>TILL NUMBER<br>NO NOTIFICATION</h4>
+    <div class="body">
+      <div class="pos">
+        <div class="scr">TILL 51234<br>Waiting for payment…</div>
+        <div class="keys"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      </div>
+      <div class="bell">🔔</div>
+    </div>
+  </div>
+  <div class="holo" id="h3">
+    <h4>NUMBER<br>WRONGLY FLAGGED</h4>
+    <div class="body" style="gap:34px">
+      <div class="spamnum">0722 xxx xxx</div>
+      <div class="spamlbl" id="spam">SPAM</div>
+      <svg viewBox="0 0 24 24" width="70" height="70"><path fill="#ff3b2f" d="M12 2 1 21h22L12 2zm0 6 .5 7h-1L12 8zm0 11.2a1.3 1.3 0 1 1 0-2.6 1.3 1.3 0 0 1 0 2.6z"/></svg>
+    </div>
+  </div>
+  <div id="s5cap"><span>None of these need a five-minute hold queue.</span></div>
+</div>
+
+<!-- S6: the thesis (71-78.2) -->
+<div class="shot" id="s6">
+  <div id="sonarhost"></div>
+  <svg id="s6net" width="1920" height="1080"></svg>
+  <div id="dothost"></div>
+  <div id="thesis1">They just need to be captured — quickly, and accurately.</div>
+  <div id="thesis2">That's the problem we set out to solve.</div>
+  <div id="greenfill"></div>
+</div>
+
+<div id="vignette"></div>
+<div id="blackout"></div>
+
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const clamp01 = v => v < 0 ? 0 : v > 1 ? 1 : v;
+const seg = (t,a,b) => clamp01((t-a)/(b-a));
+const lerp = (a,b,p) => a + (b-a)*p;
+const eo = p => 1 - Math.pow(1-p,3);
+const eio = p => p < .5 ? 4*p*p*p : 1 - Math.pow(-2*p+2,3)/2;
+const eb = p => { const c=1.70158; return 1 + (c+1)*Math.pow(p-1,3) + c*Math.pow(p-1,2); };
+const rnd = (i,s) => { const x = Math.sin(i*12.9898 + s*78.233)*43758.5453; return x - Math.floor(x); };
+
+/* ---------- static builds ---------- */
+// S1 ticket particles
+const tps = [];
+{
+  const host = $("tphost");
+  for (let i = 0; i < 90; i++) {
+    const p = document.createElement("div");
+    p.className = "tparticle";
+    const s = 4 + rnd(i,1)*10;
+    p.style.width = p.style.height = s+"px";
+    host.appendChild(p); tps.push(p);
+  }
+}
+// S2 pins
+const PINSVG = c => `<svg viewBox="0 0 24 32" width="34" height="46"><path fill="${c}" d="M12 0C5.4 0 0 5.4 0 12c0 9 12 20 12 20s12-11 12-20C24 5.4 18.6 0 12 0z"/><circle cx="12" cy="12" r="5" fill="#1a0505"/></svg>`;
+const pins = [];
+{
+  const host = $("pinhost");
+  for (let i = 0; i < 95; i++) {
+    const p = document.createElement("div");
+    const grey = i >= 62;
+    p.className = "pin" + (grey ? " grey" : "");
+    p.innerHTML = PINSVG(grey ? "#8a8a8a" : "#ff3b2f");
+    p.style.left = (80 + rnd(i,2)*2240)+"px";
+    p.style.top = (60 + rnd(i,3)*1160)+"px";
+    host.appendChild(p); pins.push({el:p, grey});
+  }
+}
+// S4 loop chips + arc arrows + question cards
+const CHIPS = [["📱","DEVICE"],["⚠️","ERROR"],["🕐","TIMING"],["📍","LOCATION"],["🔧","TROUBLE-SHOOTING"],["❓","AGENT GUESSES"]];
+const chipEls = [];
+{
+  const host = $("chiphost");
+  CHIPS.forEach(c => {
+    const d = document.createElement("div");
+    d.className = "loopchip";
+    d.innerHTML = `<div style="font-size:44px">${c[0]}</div><div class="cl">${c[1]}</div>`;
+    host.appendChild(d); chipEls.push(d);
+  });
+  const svg = $("looparrows");
+  for (let i = 0; i < 6; i++) {
+    const a0 = -Math.PI/2 + i*(Math.PI*2/6) + .28, a1 = -Math.PI/2 + (i+1)*(Math.PI*2/6) - .28;
+    const r = 330, cx = 960, cy = 562;
+    const x0 = cx+Math.cos(a0)*r, y0 = cy+Math.sin(a0)*r*.86, x1 = cx+Math.cos(a1)*r, y1 = cy+Math.sin(a1)*r*.86;
+    const path = document.createElementNS("http://www.w3.org/2000/svg","path");
+    path.setAttribute("d", `M ${x0} ${y0} A ${r} ${r*.86} 0 0 1 ${x1} ${y1}`);
+    path.setAttribute("fill","none"); path.setAttribute("stroke","#ff3b2f");
+    path.setAttribute("stroke-width","5"); path.setAttribute("marker-end","");
+    path.setAttribute("opacity",".7");
+    svg.appendChild(path);
+  }
+}
+const QS = ["What phone?","What time?","Where were you?","What happened?"];
+const qEls = [];
+{
+  const host = $("qhost");
+  QS.forEach(q => {
+    const d = document.createElement("div");
+    d.className = "qcard"; d.textContent = q;
+    host.appendChild(d); qEls.push(d);
+  });
+}
+// S6 sonar rings, dots, net
+const sonars = [];
+{
+  const host = $("sonarhost");
+  for (let i = 0; i < 4; i++) {
+    const s = document.createElement("div");
+    s.className = "sonar";
+    host.appendChild(s); sonars.push(s);
+  }
+}
+const dots = [];
+{
+  const host = $("dothost"), svg = $("s6net");
+  const pts = [];
+  for (let i = 0; i < 90; i++) {
+    const x = 60+rnd(i,7)*1800, y = 60+rnd(i,8)*960;
+    pts.push([x,y]);
+    const d = document.createElement("div");
+    d.className = "gdot";
+    d.style.left = x+"px"; d.style.top = y+"px";
+    host.appendChild(d);
+    dots.push({el:d, x, y, dist:Math.hypot(x-960, y-540)});
+  }
+  for (let i = 0; i < 90; i++) for (let j = i+1; j < 90; j++) {
+    const dx = pts[i][0]-pts[j][0], dy = pts[i][1]-pts[j][1];
+    const dd = Math.sqrt(dx*dx+dy*dy);
+    if (dd < 200) {
+      const l = document.createElementNS("http://www.w3.org/2000/svg","line");
+      l.setAttribute("x1",pts[i][0]); l.setAttribute("y1",pts[i][1]);
+      l.setAttribute("x2",pts[j][0]); l.setAttribute("y2",pts[j][1]);
+      l.setAttribute("stroke","rgba(61,190,41,.25)"); l.setAttribute("stroke-width","1.5");
+      svg.appendChild(l);
+    }
+  }
+}
+
+const SHOTS = { s1:[0,11.05], s2:[11.05,25.05], s3:[25.05,36.05], s4:[36.05,56.05], s5:[56.05,71.05], s6:[71.05,78.3] };
+
+function render(t) {
+  for (const id in SHOTS) {
+    $(id).style.opacity = (t >= SHOTS[id][0] && t < SHOTS[id][1]) ? 1 : 0;
+  }
+
+  /* S1 (0-11): the vanishing */
+  if (t < 11.3) {
+    $("s1").style.transform = `scale(${1 + .04*seg(t,0,11)})`;
+    // ticket builds 0.8-3.2
+    const bp = seg(t, .8, 3.2);
+    $("tprog").style.width = (bp*100)+"%";
+    // stamp slams at 3.6
+    const sp = eb(seg(t, 3.6, 4.0));
+    $("stamp").style.opacity = Math.min(1, Math.max(0, sp)) * (t < 5.4 ? 1 : Math.max(0, 1-seg(t,5.4,6.2)));
+    $("stamp").style.transform = `rotate(-14deg) scale(${Math.max(.001, lerp(3,1,Math.min(1,sp)))})`;
+    // ticket shatters 5.4-7.2
+    const shat = seg(t, 5.4, 7.2);
+    $("ticket").style.opacity = 1 - shat;
+    $("ticket").style.filter = shat > 0 ? `blur(${shat*6}px)` : "none";
+    tps.forEach((p,i) => {
+      const d = eo(shat);
+      p.style.opacity = (shat > 0 && shat < 1) ? (1-shat) : 0;
+      p.style.left = (900 + rnd(i,4)*420 + (rnd(i,5)-.5)*d*700) + "px";
+      p.style.top = (330 + rnd(i,6)*280 + (rnd(i,9)-.3)*d*500) + "px";
+    });
+    // text lines sequential 6.5-10.5
+    [...$("s1lines").children].forEach((el,i) => {
+      const p = eo(seg(t, 6.5+i*.9, 7.0+i*.9));
+      el.style.opacity = p;
+      el.style.transform = `translateX(${lerp(40,0,p)}px)`;
+    });
+  }
+
+  /* S2 (11-25): the scale */
+  if (t >= 10.9 && t < 25.3) {
+    // camera sweep across map
+    $("map").style.transform = `rotateX(42deg) translateX(${lerp(60,-160,seg(t,11,25))}px) scale(${lerp(1.02,1.14,seg(t,11,25))})`;
+    pins.forEach((p,i) => {
+      const start = p.grey ? 17 + rnd(i,10)*6 : 11.8 + Math.pow(rnd(i,11),2)*8;   // red pins accelerate in
+      const pr = eb(seg(t, start, start+.4));
+      p.el.style.opacity = Math.max(0, Math.min(1, pr)) * (p.grey ? .5 : 1);
+      p.el.style.transform = `translateY(${lerp(-160,0,Math.min(1,Math.max(0,pr)))}px) scale(${Math.max(.001,pr)})`;
+    });
+    // counter 1 → 1247 (exponential feel)
+    const cp = eio(seg(t, 12.2, 21.5));
+    const val = Math.max(1, Math.floor(Math.pow(1247, cp)));
+    $("cnum").textContent = val.toLocaleString("en-US");
+    const up = eo(seg(t, 11.6, 12.1));
+    $("counter").style.opacity = up;
+    $("counter").style.transform = `translateY(${lerp(-40,0,up)}px)`;
+    const un = eo(seg(t, 19.5, 20.2));
+    $("unrep").style.opacity = un;
+    $("unrep").style.transform = `translateY(${lerp(40,0,un)}px)`;
+  }
+
+  /* S3 (25-36): reactive model */
+  if (t >= 24.9 && t < 36.3) {
+    const impact = seg(t, 31.5, 31.9);
+    const shake = (impact > 0 && t < 33.5) ? (1-seg(t,31.9,33.5))*10 : 0;
+    $("s3").style.transform = `scale(${1+.04*seg(t,25,36)}) translate(${Math.sin(t*43)*shake}px,${Math.cos(t*37)*shake}px)`;
+    // nodes pop in sequence
+    ["n0","a0","n1","a1","n2","a2","n3"].forEach((id,i) => {
+      const p = eo(seg(t, 25.6+i*.55, 26.0+i*.55));
+      $(id).style.opacity = p;
+      $(id).style.transform = `translateY(${lerp(50,0,p)}px)`;
+    });
+    // broken process node flashes red
+    $("n1").style.boxShadow = (t > 26.8 && Math.floor(t*3)%2===0) ? "0 0 50px rgba(255,59,47,.7)" : "none";
+    // REACTIVE stamp at 31.5
+    const rp = eb(seg(t, 31.5, 31.95));
+    $("reactive").style.opacity = Math.min(1, Math.max(0, rp));
+    $("reactive").style.transform = `translate(-50%,-50%) rotate(-12deg) scale(${Math.max(.001, lerp(4,1,Math.min(1,rp)))})`;
+  }
+
+  /* S4 (36-56): interrogation loop */
+  if (t >= 35.9 && t < 56.3) {
+    $("s4").style.transform = `scale(${1+.05*seg(t,36,56)}) rotate(${Math.sin(t*.5)*.6}deg)`;
+    const cx = 960, cy = 562;
+    // chips fly to circle positions
+    chipEls.forEach((c,i) => {
+      const p = eo(seg(t, 36.6+i*.5, 37.1+i*.5));
+      const a = -Math.PI/2 + i*(Math.PI*2/6);
+      const x = cx + Math.cos(a)*330, y = cy + Math.sin(a)*330*.86;
+      c.style.opacity = p;
+      c.style.left = x+"px"; c.style.top = y+"px";
+      c.style.transform = `scale(${lerp(.3,1,p)})`;
+    });
+    $("looparrows").style.opacity = seg(t, 39.8, 40.6);
+    // question cards orbit, accelerating into vortex, freeze at 51
+    const tq = Math.min(t, 51);
+    const spin = Math.pow(Math.max(0, tq-42), 1.8) * .55;       // accelerating angle
+    qEls.forEach((q,i) => {
+      const vis = eo(seg(t, 42+i*.7, 42.5+i*.7));
+      const a = i*(Math.PI*2/4) + spin;
+      const r = lerp(430, 250, seg(tq, 45, 51));                // vortex tightens
+      q.style.opacity = vis;
+      q.style.left = (cx + Math.cos(a)*r - 120)+"px";
+      q.style.top = (cy + Math.sin(a)*r*.8 - 30)+"px";
+      q.style.transform = `rotate(${Math.sin(a)*8}deg) scale(${lerp(.7,1,vis)})`;
+    });
+    // outcome list after freeze
+    const op = eo(seg(t, 51.5, 52.0));
+    $("outcome").style.opacity = op;
+    $("outcome").style.transform = `translateX(${lerp(80,0,op)}px)`;
+    [...document.querySelectorAll("#outcome .oi")].forEach((el,i) => {
+      el.style.opacity = eo(seg(t, 52.2+i*.6, 52.6+i*.6));
+    });
+    // dim at end
+    if (t > 54.8) $("s4").style.filter = `brightness(${1-seg(t,54.8,56)*.5})`;
+    else $("s4").style.filter = "none";
+  }
+
+  /* S5 (56-71): beyond calls */
+  if (t >= 55.9 && t < 71.3) {
+    ["h1","h2","h3"].forEach((id,i) => {
+      const p = eo(seg(t, 56.6+i*1.1, 57.4+i*1.1));
+      const sway = Math.sin(t*.8 + i*2)*3;
+      $(id).style.opacity = p;
+      $(id).style.transform =
+        `translateY(${lerp(120,0,p)}px) rotateY(${sway + (i-1)*6}deg) scale(${lerp(.88,1,p)})`;
+    });
+    $("pspin").style.transform = `rotate(${t*400}deg)`;
+    $("ptext").textContent = "Message Delayed 20 Minutes";
+    $("spam").style.opacity = t > 60.5 ? (.7 + .3*Math.sin(t*5)) : 0;
+    const cap = eo(seg(t, 66.5, 67.2));
+    $("s5cap").style.opacity = cap;
+    $("s5cap").style.transform = `translateY(${lerp(40,0,cap)}px)`;
+    // slow dolly
+    $("s5").style.transform = `scale(${1+.045*seg(t,56,71)})`;
+  }
+
+  /* S6 (71-78.2): the thesis */
+  if (t >= 70.9) {
+    // sonar pulses
+    sonars.forEach((s,i) => {
+      const p = seg((t - 71.3 - i*.9) % 3.6, 0, 3.0);
+      const active = t > 71.3 + i*.9;
+      const d = lerp(30, 2300, p);
+      s.style.opacity = active && p < 1 ? (1-p)*.9 : 0;
+      s.style.width = s.style.height = d+"px";
+      s.style.marginLeft = s.style.marginTop = (-d/2)+"px";
+    });
+    // dots appear as pulses pass (by distance from center)
+    const wave = lerp(30, 2300, seg(t, 71.3, 74.3)) / 2;
+    dots.forEach(d => {
+      const on = d.dist < wave;
+      d.el.style.opacity = on ? .95 : 0;
+      d.el.style.transform = on ? `scale(${1+.3*Math.sin(t*3 + d.x)})` : "scale(0)";
+    });
+    $("s6net").style.opacity = seg(t, 73.5, 75.0) * .9;
+    const t1 = eo(seg(t, 73.8, 74.6));
+    $("thesis1").style.opacity = t1;
+    $("thesis1").style.transform = `translateY(${lerp(30,0,t1)}px)`;
+    const t2 = eo(seg(t, 75.2, 76.0));
+    $("thesis2").style.opacity = t2;
+    $("thesis2").style.transform = `scale(${lerp(.92,1,t2)})`;
+    // green light fill for scene 5 handoff
+    $("greenfill").style.opacity = seg(t, 77.3, 78.2);
+    $("s6").style.transform = `scale(${1+.05*seg(t,71,78.2)})`;
+  }
+}
+
+/* ---------- driver ---------- */
+const q = new URLSearchParams(location.search);
+if (q.has("freeze")) {
+  render(parseFloat(q.get("freeze")) || 0);
+} else {
+  const t0 = performance.now();
+  (function loop() {
+    const t = (performance.now() - t0) / 1000;
+    render(Math.min(t, 78.2));
+    if (t < 78.3) requestAnimationFrame(loop);
+  })();
+}
+</script>
+</body>
+</html>

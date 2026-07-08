@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OneTapDemo</title>
+<style>
+  :root {
+    --green: #3DBE29;
+    --green-bright: #52e03a;
+    --green-dim: rgba(61,190,41,.14);
+    --bg: #060a07;
+    --panel: #0d1410;
+    --panel-2: #111a14;
+    --line: rgba(61,190,41,.22);
+    --text: #eafbe6;
+    --muted: #8aa78f;
+    --red: #ff4d3d;
+    --amber: #ffb020;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { height:100%; }
+  body {
+    background: radial-gradient(1200px 800px at 50% 30%, #0b130d 0%, var(--bg) 60%);
+    font-family: "Segoe UI", -apple-system, Roboto, sans-serif;
+    color: var(--text);
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+  }
+  /* backdrop grid + particles */
+  .grid {
+    position:fixed; inset:0; pointer-events:none; opacity:.35;
+    background-image:
+      linear-gradient(rgba(61,190,41,.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(61,190,41,.05) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  }
+  .particle {
+    position:fixed; width:4px; height:4px; border-radius:50%;
+    background:var(--green); opacity:.25; pointer-events:none;
+    animation: drift linear infinite;
+  }
+  @keyframes drift {
+    from { transform: translateY(20px); opacity:0; }
+    20% { opacity:.3; }
+    80% { opacity:.3; }
+    to { transform: translateY(-90vh); opacity:0; }
+  }
+
+  /* ============ PHONE FRAME ============ */
+  .phone {
+    position:relative; flex:none;
+    transform-origin: center center;
+    width: 400px; height: 830px;
+    background:#000;
+    border-radius: 48px;
+    border: 3px solid #1c2a1f;
+    box-shadow: 0 0 0 2px #000, 0 0 80px rgba(61,190,41,.18), 0 40px 90px rgba(0,0,0,.8);
+    overflow:hidden;
+    display:flex; flex-direction:column;
+  }
+  .notch {
+    position:absolute; top:12px; left:50%; transform:translateX(-50%);
+    width:120px; height:26px; background:#000; border-radius:14px; z-index:50;
+    border:1px solid #131313;
+  }
+  .statusbar {
+    height:52px; flex:none; display:flex; align-items:flex-end; justify-content:space-between;
+    padding: 0 26px 6px; font-size:13px; font-weight:600; color:#cfe8cc; z-index:40;
+  }
+  .statusbar .right { display:flex; gap:7px; align-items:center; }
+  .sig { display:inline-flex; gap:1.5px; align-items:flex-end; height:11px; }
+  .sig i { width:3px; background:#cfe8cc; border-radius:1px; display:block; }
+  .sig i:nth-child(1){height:4px} .sig i:nth-child(2){height:6px}
+  .sig i:nth-child(3){height:8px} .sig i:nth-child(4){height:11px; background:#5a6f5c;}
+  .batt { width:22px; height:11px; border:1.5px solid #cfe8cc; border-radius:3px; position:relative; }
+  .batt::after { content:""; position:absolute; inset:1.5px; right:35%; background:var(--green); border-radius:1px; }
+
+  .screens { position:relative; flex:1; overflow:hidden; }
+  .screen {
+    position:absolute; inset:0; padding: 10px 22px 24px;
+    display:flex; flex-direction:column;
+    opacity:0; pointer-events:none; transform: translateX(28px);
+    transition: opacity .45s ease, transform .45s ease;
+  }
+  .screen.active { opacity:1; pointer-events:auto; transform:none; }
+
+  /* ============ HOME ============ */
+  .apphead { display:flex; align-items:center; gap:12px; margin: 6px 0 4px; }
+  .applogo {
+    width:42px; height:42px; border-radius:13px; flex:none;
+    background: linear-gradient(135deg, var(--green), #1d7a12);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:19px; color:#fff;
+    box-shadow: 0 0 18px rgba(61,190,41,.45);
+  }
+  .apphead h1 { font-size:19px; font-weight:700; }
+  .apphead p { font-size:12px; color:var(--muted); }
+  .hero {
+    margin-top:14px; padding:16px 18px; border-radius:18px;
+    background: linear-gradient(160deg, var(--panel-2), var(--panel));
+    border:1px solid var(--line);
+  }
+  .hero h2 { font-size:17px; display:flex; align-items:center; gap:9px; }
+  .hero h2 .dot {
+    width:9px; height:9px; border-radius:50%; background:var(--green);
+    box-shadow:0 0 10px var(--green); animation:pulse 1.8s ease infinite;
+  }
+  @keyframes pulse { 50% { box-shadow:0 0 18px var(--green); transform:scale(1.25);} }
+  .hero p { font-size:12.5px; color:var(--muted); margin-top:5px; line-height:1.45; }
+
+  .label { margin:20px 2px 10px; font-size:11px; letter-spacing:2.5px; color:var(--muted); font-weight:700; }
+  .options { display:flex; flex-direction:column; gap:11px; }
+  .opt {
+    display:flex; align-items:center; gap:14px; text-align:left;
+    padding:14px 15px; border-radius:16px; cursor:pointer;
+    background:var(--panel); border:1.5px solid rgba(255,255,255,.06);
+    color:var(--text); font-family:inherit; width:100%;
+    transition: border-color .25s, background .25s, transform .15s;
+  }
+  .opt:active { transform:scale(.98); }
+  .opt .ico {
+    width:42px; height:42px; border-radius:12px; flex:none;
+    display:flex; align-items:center; justify-content:center; font-size:20px;
+    background:var(--green-dim); border:1px solid var(--line);
+  }
+  .opt b { font-size:14.5px; display:block; }
+  .opt span { font-size:11.5px; color:var(--muted); display:block; margin-top:2px; }
+  .opt .radio {
+    margin-left:auto; width:20px; height:20px; border-radius:50%; flex:none;
+    border:2px solid #3a4a3c; transition: all .25s; position:relative;
+  }
+  .opt.sel { border-color:var(--green); background:var(--green-dim); }
+  .opt.sel .radio { border-color:var(--green); }
+  .opt.sel .radio::after {
+    content:""; position:absolute; inset:3px; border-radius:50%;
+    background:var(--green); box-shadow:0 0 8px var(--green);
+  }
+  .submit {
+    margin-top:auto; padding:17px; border-radius:16px; border:none; cursor:pointer;
+    font-family:inherit; font-size:16px; font-weight:800; letter-spacing:.5px;
+    background: linear-gradient(135deg, var(--green-bright), #23980f);
+    color:#04140a; opacity:.35; pointer-events:none;
+    transition: opacity .3s, transform .15s, box-shadow .3s;
+  }
+  .submit.ready { opacity:1; pointer-events:auto; box-shadow:0 6px 30px rgba(61,190,41,.4); }
+  .submit.ready:active { transform:scale(.97); }
+
+  /* ============ SCAN ============ */
+  #scan { align-items:center; }
+  .scanring { position:relative; width:150px; height:150px; margin-top:34px; flex:none; }
+  .scanring svg { position:absolute; inset:0; animation: spin 2.4s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg);} }
+  .scanring .core {
+    position:absolute; inset:30px; border-radius:50%;
+    background: radial-gradient(circle, rgba(61,190,41,.3), transparent 70%);
+    display:flex; align-items:center; justify-content:center; font-size:38px;
+    animation:pulse 1.6s ease infinite;
+  }
+  .scantitle { margin-top:22px; font-size:15px; font-weight:800; letter-spacing:2.5px; color:var(--green-bright); }
+  .scantitle::after { content:"..."; animation: dots 1.2s steps(4) infinite; }
+  @keyframes dots { 0%{content:""} 25%{content:"."} 50%{content:".."} 75%{content:"..."} }
+  .checks { width:100%; margin-top:20px; display:flex; flex-direction:column; gap:8px; }
+  .chk {
+    display:flex; align-items:center; gap:12px; padding:10.5px 14px; border-radius:12px;
+    background:var(--panel); border:1px solid rgba(255,255,255,.05);
+    opacity:0; transform:translateY(10px); transition: all .4s ease;
+  }
+  .chk.show { opacity:1; transform:none; }
+  .chk .st {
+    width:22px; height:22px; border-radius:50%; flex:none;
+    border:2px solid #3a4a3c; border-top-color:var(--green);
+    animation:spin .8s linear infinite;
+  }
+  .chk.done { border-color:var(--line); }
+  .chk.done .st {
+    animation:none; border:none; background:var(--green);
+    display:flex; align-items:center; justify-content:center;
+    color:#04140a; font-weight:900; font-size:13px;
+  }
+  .chk.done .st::after { content:"✓"; }
+  .chk b { font-size:13.5px; }
+  .chk small { display:block; font-size:11px; color:var(--muted); margin-top:1px; opacity:0; transition:opacity .4s; }
+  .chk.done small { opacity:1; }
+  .pbar { width:100%; height:5px; border-radius:3px; background:#15201a; margin-top:auto; overflow:hidden; }
+  .pbar i { display:block; height:100%; width:0%; border-radius:3px;
+    background:linear-gradient(90deg, var(--green), var(--green-bright));
+    box-shadow:0 0 12px var(--green); transition: width .55s ease; }
+
+  /* ============ TICKET ============ */
+  #ticket { align-items:center; }
+  .bigcheck { width:110px; height:110px; margin-top:26px; flex:none; }
+  .bigcheck circle {
+    fill:none; stroke:var(--green); stroke-width:4;
+    stroke-dasharray:302; stroke-dashoffset:302;
+  }
+  .bigcheck path {
+    fill:none; stroke:var(--green-bright); stroke-width:7; stroke-linecap:round; stroke-linejoin:round;
+    stroke-dasharray:80; stroke-dashoffset:80;
+    filter: drop-shadow(0 0 8px var(--green));
+  }
+  #ticket.active .bigcheck circle { animation: draw 0.7s .1s ease forwards; }
+  #ticket.active .bigcheck path { animation: draw 0.45s .7s ease forwards; }
+  @keyframes draw { to { stroke-dashoffset:0; } }
+  .tickethead { margin-top:14px; text-align:center; }
+  .tickethead h2 { font-size:20px; font-weight:800; letter-spacing:1.5px; color:var(--green-bright); }
+  .tickethead p { font-size:12px; color:var(--muted); margin-top:4px; }
+  .tcard {
+    width:100%; margin-top:18px; border-radius:18px; overflow:hidden;
+    background:var(--panel); border:1px solid var(--line);
+  }
+  .tcard .tid {
+    padding:11px 16px; font-size:12px; font-weight:700; letter-spacing:1px;
+    background:var(--green-dim); color:var(--green-bright);
+    display:flex; justify-content:space-between;
+  }
+  .trow {
+    display:flex; justify-content:space-between; align-items:center; gap:12px;
+    padding:11.5px 16px; font-size:13px;
+    border-top:1px solid rgba(255,255,255,.05);
+    opacity:0; transform:translateX(-12px); transition: all .4s ease;
+  }
+  .trow.show { opacity:1; transform:none; }
+  .trow .k { color:var(--muted); flex:none; }
+  .trow .v { font-weight:700; text-align:right; }
+  .pill {
+    padding:3.5px 11px; border-radius:20px; font-size:11.5px; font-weight:800;
+    background:rgba(255,176,32,.15); color:var(--amber); border:1px solid rgba(255,176,32,.4);
+  }
+  .pill.err { background:rgba(255,77,61,.12); color:var(--red); border-color:rgba(255,77,61,.35); }
+  .track {
+    margin-top:auto; width:100%; padding:15px; border-radius:16px; cursor:pointer;
+    border:1.5px solid var(--green); background:transparent; color:var(--green-bright);
+    font-family:inherit; font-size:15px; font-weight:800;
+    opacity:0; transition:opacity .5s;
+  }
+  .track.show { opacity:1; }
+  .tagline { margin-top:12px; font-size:12px; color:var(--muted); font-style:italic; opacity:0; transition:opacity .6s; }
+  .tagline.show { opacity:1; }
+
+  /* restart button outside phone */
+  .restart {
+    position:fixed; bottom:26px; right:30px; z-index:100;
+    padding:10px 18px; border-radius:12px; cursor:pointer;
+    background:#0d1410; border:1px solid var(--line); color:var(--muted);
+    font-family:inherit; font-size:13px;
+  }
+  .restart:hover { color:var(--text); border-color:var(--green); }
+</style>
+</head>
+<body>
+<div class="grid"></div>
+
+<div class="phone">
+  <div class="notch"></div>
+  <div class="statusbar">
+    <span id="clock">21:47</span>
+    <span class="right">
+      <span class="sig"><i></i><i></i><i></i><i></i></span>
+      <span style="font-size:11px">Safaricom</span>
+      <span class="batt"></span>
+    </span>
+  </div>
+
+  <div class="screens">
+
+    <!-- HOME -->
+    <div class="screen active" id="home">
+      <div class="apphead">
+        <div class="applogo">1</div>
+        <div>
+          <h1>My OneApp</h1>
+          <p>Karibu, Vincent</p>
+        </div>
+      </div>
+
+      <div class="hero">
+        <h2><span class="dot"></span> One-Tap Problem Reporter</h2>
+        <p>Report an issue with a single tap. We'll capture the diagnostics automatically — no call, no queue, no repeating yourself.</p>
+      </div>
+
+      <div class="label">WHAT'S THE PROBLEM?</div>
+      <div class="options">
+        <button class="opt" data-issue="Can't access Lipa na M-PESA">
+          <span class="ico">💳</span>
+          <span><b>SIM Toolkit / M-PESA</b><span>Transaction failures or menu errors</span></span>
+          <span class="radio"></span>
+        </button>
+        <button class="opt" data-issue="Till Number payment not received">
+          <span class="ico">🏪</span>
+          <span><b>Till Number Issues</b><span>Merchant-side payment hurdles</span></span>
+          <span class="radio"></span>
+        </button>
+        <button class="opt" data-issue="No signal / slow data">
+          <span class="ico">📶</span>
+          <span><b>Network / Data</b><span>Slow speeds or no signal</span></span>
+          <span class="radio"></span>
+        </button>
+        <button class="opt" data-issue="Suspicious activity">
+          <span class="ico">🛡️</span>
+          <span><b>Report Fraud</b><span>Instant reporting of suspicious activity</span></span>
+          <span class="radio"></span>
+        </button>
+      </div>
+
+      <button class="submit" id="submit">SUBMIT — ONE TAP</button>
+    </div>
+
+    <!-- AUTO-SCAN -->
+    <div class="screen" id="scan">
+      <div class="scanring">
+        <svg viewBox="0 0 150 150">
+          <circle cx="75" cy="75" r="68" fill="none" stroke="rgba(61,190,41,.15)" stroke-width="3"/>
+          <circle cx="75" cy="75" r="68" fill="none" stroke="#3DBE29" stroke-width="3"
+                  stroke-dasharray="90 340" stroke-linecap="round"/>
+        </svg>
+        <div class="core">📱</div>
+      </div>
+      <div class="scantitle">AUTO-SCAN IN PROGRESS</div>
+
+      <div class="checks">
+        <div class="chk"><span class="st"></span><span><b>SIM Status</b><small>Active · Registered · ICCID verified</small></span></div>
+        <div class="chk"><span class="st"></span><span><b>Device Info</b><small>Samsung A34 · Android 15 · Build OK</small></span></div>
+        <div class="chk"><span class="st"></span><span><b>Network Diagnostics</b><small>Signal −97 dBm · Cell ID 14B-2291</small></span></div>
+        <div class="chk"><span class="st"></span><span><b>Service Status</b><small>Account active · No open outages</small></span></div>
+        <div class="chk"><span class="st"></span><span><b>Transaction Logs</b><small>Last 5 M-PESA events attached</small></span></div>
+        <div class="chk"><span class="st"></span><span><b>Error Codes</b><small>Error 504 — SIM Card Timeout</small></span></div>
+      </div>
+
+      <div class="pbar"><i id="pfill"></i></div>
+    </div>
+
+    <!-- TICKET -->
+    <div class="screen" id="ticket">
+      <svg class="bigcheck" viewBox="0 0 110 110">
+        <circle cx="55" cy="55" r="48"/>
+        <path d="M34 57 L49 71 L78 41"/>
+      </svg>
+      <div class="tickethead">
+        <h2>TICKET CREATED</h2>
+        <p>Routed automatically — no agent questions needed</p>
+      </div>
+
+      <div class="tcard">
+        <div class="tid"><span>TICKET #ST-2026-07-114</span><span id="tstamp">21:47</span></div>
+        <div class="trow"><span class="k">Reported Issue</span><span class="v" id="tissue">Can't access Lipa na M-PESA</span></div>
+        <div class="trow"><span class="k">Ticket Status</span><span class="v"><span class="pill">Investigating</span></span></div>
+        <div class="trow"><span class="k">Assigned Team</span><span class="v">SIM Toolkit Services</span></div>
+        <div class="trow"><span class="k">Diagnostic Attached</span><span class="v"><span class="pill err">Error 504 — SIM Timeout</span></span></div>
+        <div class="trow"><span class="k">Resolution ETA</span><span class="v" style="color:var(--green-bright)">3 Hours</span></div>
+      </div>
+
+      <button class="track show" style="opacity:0" id="track">TRACK TICKET</button>
+      <div class="tagline" id="tagline">Every issue captured. Faster resolution.</div>
+    </div>
+
+  </div>
+</div>
+
+<button class="restart" onclick="location.reload()">⟲ Restart demo</button>
+
+<script>
+  // scale phone to fit viewport
+  const phone = document.querySelector(".phone");
+  function fit() {
+    const s = Math.min(1, (innerHeight * 0.96) / 830, (innerWidth * 0.92) / 400);
+    phone.style.transform = "scale(" + s + ")";
+  }
+  fit();
+  addEventListener("resize", fit);
+
+  // floating particles
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement("div");
+    p.className = "particle";
+    p.style.left = Math.random() * 100 + "vw";
+    p.style.top = 60 + Math.random() * 40 + "vh";
+    p.style.animationDuration = 9 + Math.random() * 14 + "s";
+    p.style.animationDelay = -Math.random() * 12 + "s";
+    document.body.appendChild(p);
+  }
+
+  // live clock
+  const now = new Date();
+  const hhmm = String(now.getHours()).padStart(2,"0") + ":" + String(now.getMinutes()).padStart(2,"0");
+  document.getElementById("clock").textContent = hhmm;
+  document.getElementById("tstamp").textContent = hhmm;
+
+  const opts = document.querySelectorAll(".opt");
+  const submit = document.getElementById("submit");
+  let chosen = null;
+
+  opts.forEach(o => o.addEventListener("click", () => {
+    opts.forEach(x => x.classList.remove("sel"));
+    o.classList.add("sel");
+    chosen = o.dataset.issue;
+    submit.classList.add("ready");
+  }));
+
+  function show(id) {
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+  }
+
+  submit.addEventListener("click", () => {
+    document.getElementById("tissue").textContent = chosen;
+    show("scan");
+    runScan();
+  });
+
+  function runScan() {
+    const items = document.querySelectorAll(".chk");
+    const fill = document.getElementById("pfill");
+    const stepIn = 650, stepDone = 520;
+    items.forEach((it, i) => {
+      setTimeout(() => {
+        it.classList.add("show");
+        fill.style.width = ((i + .5) / items.length) * 100 + "%";
+      }, i * (stepIn + stepDone) + 300);
+      setTimeout(() => {
+        it.classList.add("done");
+        fill.style.width = ((i + 1) / items.length) * 100 + "%";
+      }, i * (stepIn + stepDone) + 300 + stepIn);
+    });
+    const total = items.length * (stepIn + stepDone) + 1100;
+    setTimeout(() => { show("ticket"); runTicket(); }, total);
+  }
+
+  function runTicket() {
+    const rows = document.querySelectorAll(".trow");
+    rows.forEach((r, i) => setTimeout(() => r.classList.add("show"), 1200 + i * 550));
+    const after = 1200 + rows.length * 550 + 300;
+    setTimeout(() => { document.getElementById("track").style.opacity = 1; }, after);
+    setTimeout(() => { document.getElementById("tagline").classList.add("show"); }, after + 400);
+  }
+
+  // ?autoplay=1 — runs the whole demo hands-free (for screen recording)
+  if (new URLSearchParams(location.search).get("autoplay")) {
+    document.querySelector(".restart").style.display = "none";
+    setTimeout(() => opts[0].click(), 2200);
+    setTimeout(() => submit.click(), 3800);
+  }
+</script>
+</body>
+</html>

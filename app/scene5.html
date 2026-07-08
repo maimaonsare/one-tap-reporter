@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Scene5Render</title>
+<style>
+  :root { --green:#3DBE29; --greenB:#5cff3d; --red:#ff3b2f; --blue:#4aa3ff; --amber:#ffb020; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:1920px; height:1080px; overflow:hidden; background:#000; }
+  body { font-family:"Segoe UI", Arial, sans-serif; color:#fff; position:relative; }
+  .shot { position:absolute; inset:0; opacity:0; }
+  .khdr { position:absolute; top:58px; left:0; right:0; text-align:center; font-size:42px; font-weight:900;
+    letter-spacing:10px; color:#b8f0ac; text-shadow:0 0 28px rgba(61,190,41,.55); opacity:0; }
+
+  /* ================= SHOT 1 — THE REVEAL ================= */
+  #s1 { background:radial-gradient(ellipse at 50% 45%, rgba(61,190,41,.08), transparent 60%), #000; }
+  .gp { position:absolute; width:7px; height:7px; border-radius:50%; background:var(--greenB);
+    box-shadow:0 0 12px var(--green); opacity:0; }
+  .ring1 { position:absolute; border-radius:50%; border:5px solid var(--greenB);
+    box-shadow:0 0 40px var(--green), inset 0 0 30px rgba(61,190,41,.4); opacity:0; }
+  #s1img { position:absolute; left:657px; top:0; width:606px; height:1080px; object-fit:cover; opacity:0;
+    filter:contrast(1.06) saturate(1.05); }
+  .ripL { position:absolute; border-radius:50%; border:14px solid var(--greenB);
+    box-shadow:0 0 60px var(--green), inset 0 0 60px var(--green); opacity:0; }
+  #s1flash { position:absolute; inset:0; background:radial-gradient(circle, #eaffe4 0%, #52e03a 45%, #0c2408 100%); opacity:0; }
+  #logo1 { position:absolute; left:0; right:0; top:270px; text-align:center; }
+  #lg1, #lg2 { font-size:148px; font-weight:900; letter-spacing:12px; line-height:1.06; opacity:0;
+    background:linear-gradient(180deg, #ffffff, #b9c4b9 60%, #eef2ee);
+    -webkit-background-clip:text; background-clip:text; color:transparent; }
+  #lg3 { font-size:92px; font-weight:900; letter-spacing:8px; margin-top:10px; color:var(--greenB);
+    text-shadow:0 0 34px rgba(92,255,61,.7); opacity:0; }
+  #s1sub { position:absolute; left:0; right:0; top:770px; text-align:center; font-size:32px; font-weight:600;
+    color:#cfe3c9; letter-spacing:1px; opacity:0; }
+  #badges1 { position:absolute; left:0; right:0; top:860px; display:flex; justify-content:center; gap:44px; }
+  .bdg { border:3px solid #2f4a2e; border-radius:18px; padding:20px 40px; font-size:34px; font-weight:800;
+    letter-spacing:2px; background:rgba(10,20,10,.8); opacity:0; }
+  .bdg.saf { color:var(--greenB); font-style:italic; border-color:var(--green); box-shadow:0 0 30px rgba(61,190,41,.35); }
+
+  /* ================= SHOT 2 — CUSTOMER DEMO ================= */
+  #s2 { background:radial-gradient(ellipse at 33% 50%, rgba(61,190,41,.10), transparent 55%), #010301; perspective:1400px; }
+  #ph2wrap { position:absolute; left:430px; top:145px; width:390px; height:800px; opacity:0; }
+  #ph2 { position:absolute; inset:0; border-radius:50px; background:#0a0f0a; border:4px solid #2c352c;
+    box-shadow:0 40px 100px rgba(0,0,0,.8), 0 0 60px rgba(61,190,41,.25); }
+  #ph2 .notch { position:absolute; top:16px; left:50%; transform:translateX(-50%); width:110px; height:20px;
+    border-radius:11px; background:#000; border:2px solid #1c241c; z-index:5; }
+  #scr2 { position:absolute; inset:16px; border-radius:36px; overflow:hidden;
+    background:linear-gradient(170deg, #07120a, #030803); }
+  .pg { position:absolute; inset:0; padding:52px 24px 24px; }
+  .pg .app { font-size:22px; font-weight:800; color:var(--greenB); letter-spacing:1px; }
+  .pg .ttl { font-size:29px; font-weight:800; color:#eef5ec; margin-top:4px; }
+  .mrow { height:88px; border:2px solid #234427; border-radius:18px; display:flex; align-items:center;
+    gap:16px; padding:0 20px; margin-top:17px; background:rgba(18,36,20,.55);
+    font-size:24px; font-weight:700; color:#dff0da; opacity:0; }
+  .mrow .mi { font-size:34px; }
+  #pg2 .shield { text-align:center; font-size:74px; margin-top:2px; }
+  #pg2 .ct { text-align:center; font-size:27px; font-weight:800; color:#eef5ec; margin-top:6px; }
+  #pg2 .note { font-size:17px; color:#9fb3a2; text-align:center; margin-top:8px; line-height:1.35; padding:0 8px; }
+  .crow { display:flex; align-items:center; gap:12px; font-size:19px; font-weight:600; color:#cfe8c7;
+    margin-top:13px; padding:0 14px; opacity:0; }
+  .crow b { color:var(--greenB); font-size:22px; }
+  #pg2 .priv { margin-top:14px; text-align:center; font-size:15px; color:#7f957f; }
+  .btnA { margin:20px 14px 0; height:66px; border-radius:16px; background:linear-gradient(180deg, #45cf2e, #2f9e1e);
+    display:flex; align-items:center; justify-content:center; font-size:23px; font-weight:900; letter-spacing:1px;
+    color:#04220a; box-shadow:0 0 30px rgba(61,190,41,.45); }
+  .btnC { margin:12px 14px 0; height:54px; border-radius:14px; border:2px solid #3a4a3c;
+    display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:700; color:#9fb3a2; }
+  #pg3 .bigchk { width:150px; height:150px; margin:26px auto 0; border-radius:50%;
+    border:8px solid var(--greenB); display:flex; align-items:center; justify-content:center;
+    font-size:84px; font-weight:900; color:var(--greenB); text-shadow:0 0 26px var(--green);
+    box-shadow:0 0 40px rgba(92,255,61,.45), inset 0 0 30px rgba(92,255,61,.2); }
+  #pg3 .note3 { font-size:21px; color:#cfe8c7; text-align:center; margin-top:26px; line-height:1.4; padding:0 16px; }
+  #btnSub { margin:44px 14px 0; height:70px; border-radius:16px; background:linear-gradient(180deg, #45cf2e, #2f9e1e);
+    display:flex; align-items:center; justify-content:center; font-size:26px; font-weight:900; letter-spacing:3px; color:#04220a; }
+  #suc2 { position:absolute; inset:0; background:radial-gradient(circle at 50% 46%, rgba(92,255,61,.9), rgba(18,90,10,.95) 70%);
+    display:flex; align-items:center; justify-content:center; opacity:0; }
+  #suc2 .sc { font-size:190px; font-weight:900; color:#eaffe4; text-shadow:0 0 60px #fff; }
+  .tapr { position:absolute; border-radius:50%; border:6px solid rgba(255,255,255,.9);
+    box-shadow:0 0 24px rgba(255,255,255,.7); opacity:0; z-index:8; }
+  .sdot { position:absolute; width:12px; height:12px; border-radius:50%; background:#eaffe4;
+    box-shadow:0 0 14px #fff; opacity:0; z-index:9; }
+  #wf { position:absolute; left:1150px; top:190px; width:620px; }
+  .wfc { display:flex; align-items:center; gap:30px; margin-left:90px; opacity:.22; }
+  .wfc .cir { width:96px; height:96px; border-radius:50%; border:4px solid #2c3f2e; background:rgba(12,24,12,.85);
+    display:flex; align-items:center; justify-content:center; font-size:42px; flex:0 0 auto; }
+  .wfc .lbl { font-size:44px; font-weight:900; letter-spacing:5px; color:#dfe6dd; }
+  .wfa { height:52px; margin-left:128px; font-size:40px; color:#3f553f; font-weight:900;
+    display:flex; align-items:center; }
+
+  /* ================= SHOT 3 — DIAGNOSTICS ================= */
+  #s3 { background:radial-gradient(ellipse at 50% 55%, rgba(61,190,41,.12), transparent 58%), #010301; }
+  #plat3 { position:absolute; left:610px; top:830px; width:700px; height:130px; border-radius:50%;
+    background:radial-gradient(ellipse, rgba(61,190,41,.4), transparent 70%); opacity:0; }
+  #platr { position:absolute; left:680px; top:855px; width:560px; height:90px; border-radius:50%;
+    border:3px solid rgba(92,255,61,.5); opacity:0; }
+  #scanring { position:absolute; left:640px; top:200px; width:640px; height:640px; border-radius:50%;
+    background:conic-gradient(rgba(92,255,61,0) 0deg, rgba(92,255,61,.6) 42deg, transparent 66deg);
+    -webkit-mask:radial-gradient(farthest-side, transparent 74%, #000 76%); opacity:0; }
+  #ph3 { position:absolute; left:830px; top:250px; width:260px; height:520px; border-radius:40px;
+    background:linear-gradient(165deg, #0b1a0c, #041004); border:4px solid var(--green); opacity:0; }
+  #ph3 .notch { position:absolute; top:12px; left:50%; transform:translateX(-50%); width:76px; height:14px;
+    border-radius:8px; background:#000; border:2px solid #123c0d; }
+  #ph3core { position:absolute; left:50%; top:50%; width:60px; height:60px; margin:-30px 0 0 -30px;
+    border-radius:50%; background:var(--greenB); box-shadow:0 0 40px var(--green); }
+  #chk3 { position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-size:150px; font-weight:900; color:var(--greenB); text-shadow:0 0 50px var(--green); opacity:0; }
+  #chk3ring { position:absolute; left:960px; top:510px; border-radius:50%;
+    border:6px solid var(--greenB); box-shadow:0 0 30px var(--green); opacity:0; }
+  .icon3 { position:absolute; width:150px; height:150px; margin:-75px 0 0 -75px; border-radius:50%;
+    background:rgba(8,26,7,.92); border:4px solid var(--green);
+    box-shadow:0 0 34px rgba(61,190,41,.55), inset 0 0 26px rgba(61,190,41,.28);
+    display:flex; align-items:center; justify-content:center; font-size:60px; opacity:0; }
+  .il3 { position:absolute; white-space:nowrap; font-size:27px; font-weight:800; letter-spacing:3px;
+    color:#d8ffd0; text-shadow:0 0 14px rgba(61,190,41,.8); top:156px; width:100%; text-align:center; }
+  .ddot { position:absolute; width:11px; height:11px; border-radius:50%; background:var(--greenB);
+    box-shadow:0 0 14px var(--green); opacity:0; }
+
+  /* ================= SHOT 4 — ROUTING ================= */
+  #s4 { background:radial-gradient(ellipse at 50% 45%, rgba(61,190,41,.07), transparent 60%), #010301; }
+  #bundle { position:absolute; left:250px; top:330px; width:330px; height:300px; border-radius:26px;
+    background:linear-gradient(165deg, rgba(10,24,11,.95), rgba(3,9,4,.95)); border:4px solid var(--green);
+    box-shadow:0 0 40px rgba(61,190,41,.4); text-align:center; opacity:0; }
+  #bundle .bi { font-size:96px; margin-top:44px; }
+  #bundle .bl { font-size:28px; font-weight:900; letter-spacing:3px; color:#cfe3c9; margin-top:16px; }
+  .frag { position:absolute; width:74px; height:74px; border-radius:50%; background:rgba(8,26,7,.95);
+    border:3px solid var(--green); display:flex; align-items:center; justify-content:center;
+    font-size:32px; box-shadow:0 0 20px rgba(61,190,41,.5); opacity:0; }
+  #tchip { position:absolute; left:255px; top:672px; width:320px; height:76px; border-radius:16px;
+    background:linear-gradient(160deg, rgba(8,40,34,.95), rgba(2,16,13,.95)); border:3px solid #29e8c8;
+    box-shadow:0 0 40px rgba(41,232,200,.5); display:flex; align-items:center; justify-content:center;
+    gap:14px; font-size:26px; font-weight:900; letter-spacing:2px; color:#8ffce9; opacity:0; }
+  #midnode { position:absolute; left:770px; top:320px; width:380px; height:330px; border-radius:26px;
+    background:linear-gradient(165deg, rgba(30,7,5,.95), rgba(12,2,1,.95)); border:4px solid var(--red);
+    box-shadow:0 0 40px rgba(255,59,47,.35); text-align:center; opacity:0; }
+  #midnode .mi4 { font-size:74px; margin-top:52px; letter-spacing:10px; }
+  #midnode .ml { font-size:30px; font-weight:900; letter-spacing:2px; color:#ff9d95; margin-top:20px; line-height:1.35; }
+  #midX { position:absolute; left:880px; top:390px; font-size:170px; font-weight:900; color:var(--red);
+    text-shadow:0 0 50px rgba(255,59,47,.9); opacity:0; }
+  #spec { position:absolute; left:1440px; top:300px; width:340px; height:380px; border-radius:26px;
+    background:linear-gradient(165deg, rgba(10,24,11,.95), rgba(3,9,4,.95)); border:4px solid var(--green);
+    box-shadow:0 0 40px rgba(61,190,41,.4); text-align:center; opacity:0; }
+  #spec .si { font-size:110px; margin-top:60px; }
+  #spec .sl { font-size:32px; font-weight:900; letter-spacing:3px; color:#cfe3c9; margin-top:22px; }
+  #spec .schk { font-size:56px; font-weight:900; color:var(--greenB); text-shadow:0 0 24px var(--green);
+    margin-top:8px; opacity:0; }
+  #route4 { position:absolute; inset:0; }
+  #trav { position:absolute; width:250px; height:66px; margin:-33px 0 0 -125px; border-radius:14px;
+    background:linear-gradient(160deg, rgba(8,40,34,.98), rgba(2,16,13,.98)); border:3px solid #29e8c8;
+    box-shadow:0 0 40px rgba(41,232,200,.7); display:flex; align-items:center; justify-content:center;
+    gap:12px; font-size:24px; font-weight:900; letter-spacing:2px; color:#8ffce9; opacity:0; }
+  .ghost4 { position:absolute; width:250px; height:66px; margin:-33px 0 0 -125px; border-radius:14px;
+    background:rgba(41,232,200,.18); border:2px solid rgba(41,232,200,.4); opacity:0; }
+  .pill4 { position:absolute; top:930px; border:3px solid var(--green); border-radius:50px; padding:20px 46px;
+    font-size:33px; font-weight:900; letter-spacing:3px; color:#dff5da; background:rgba(8,18,8,.9);
+    box-shadow:0 0 30px rgba(61,190,41,.3); opacity:0; white-space:nowrap; }
+
+  /* ================= SHOT 5 — EVERY ISSUE CAPTURED ================= */
+  #s5bgR { position:absolute; inset:0; background:radial-gradient(ellipse at 30% 50%, rgba(255,59,47,.18), transparent 60%), #060101; }
+  #s5bgG { position:absolute; inset:0; background:radial-gradient(ellipse at 30% 50%, rgba(61,190,41,.18), transparent 60%), #010401; opacity:0; }
+  #s5frame { position:absolute; left:140px; top:262px; width:760px; border-radius:26px; overflow:hidden;
+    border:4px solid var(--red); box-shadow:0 0 60px rgba(255,59,47,.4); opacity:0; }
+  #s5frame img { display:block; width:100%; }
+  #s5tint { position:absolute; inset:0; background:rgba(255,59,47,.16); }
+  #flip { position:absolute; left:1020px; top:370px; width:560px; height:220px; }
+  .fcard { position:absolute; inset:0; border-radius:26px; display:flex; align-items:center; justify-content:center;
+    gap:18px; font-size:46px; font-weight:900; letter-spacing:3px; white-space:nowrap; }
+  #fFront { background:linear-gradient(165deg, rgba(34,7,5,.97), rgba(14,2,1,.97)); border:5px solid var(--red);
+    color:#ff8d84; box-shadow:0 0 60px rgba(255,59,47,.45); }
+  #fBack { background:linear-gradient(165deg, rgba(10,28,11,.97), rgba(3,10,4,.97)); border:5px solid var(--greenB);
+    color:var(--greenB); box-shadow:0 0 70px rgba(92,255,61,.5); text-shadow:0 0 26px var(--green); }
+  #bigchk5 { position:absolute; left:1225px; top:640px; width:150px; height:150px; border-radius:50%;
+    border:9px solid var(--greenB); display:flex; align-items:center; justify-content:center;
+    font-size:86px; font-weight:900; color:var(--greenB); text-shadow:0 0 30px var(--green);
+    box-shadow:0 0 50px rgba(92,255,61,.5), inset 0 0 30px rgba(92,255,61,.2); opacity:0; }
+  #s5cap { position:absolute; left:0; right:0; bottom:88px; text-align:center; font-size:38px; font-weight:700;
+    color:#dff5da; text-shadow:0 0 20px rgba(61,190,41,.5); opacity:0; }
+
+  /* ================= SHOT 6 — LIVE TICKET ================= */
+  #s6 { background:radial-gradient(ellipse at 32% 50%, rgba(61,190,41,.09), transparent 55%), #010301; }
+  #tpanel { position:absolute; left:190px; top:158px; width:640px; height:810px; border-radius:30px;
+    background:linear-gradient(168deg, rgba(9,17,10,.97), rgba(3,7,3,.97)); border:4px solid #3a4a3c;
+    box-shadow:0 30px 90px rgba(0,0,0,.8), 0 0 50px rgba(61,190,41,.18); overflow:hidden; opacity:0; }
+  #tpanel .thd { display:flex; align-items:center; gap:20px; padding:26px 30px; border-bottom:2px solid #24361f; }
+  #tpanel .thd .bk { font-size:34px; color:#9fb3a2; }
+  #tpanel .thd .tt { font-size:32px; font-weight:800; color:#eef5ec; }
+  #live6 { margin-left:auto; font-size:19px; font-weight:900; letter-spacing:2px; color:#ff6b5f;
+    border:2px solid #ff6b5f; border-radius:9px; padding:4px 12px; }
+  .trow { margin:19px 28px 0; border:2px solid #24361f; border-radius:16px; padding:14px 20px 16px;
+    background:rgba(16,30,16,.45); opacity:0; }
+  .trow .tl6 { font-size:19px; font-weight:700; letter-spacing:2px; color:#8fa892; }
+  .trow .tv6 { font-size:28px; font-weight:800; color:#eef5ec; margin-top:5px; min-height:38px; }
+  .trow .tv6 .cur { display:inline-block; width:3px; height:26px; background:var(--greenB); vertical-align:-3px; }
+  #dotInv { display:inline-block; width:16px; height:16px; border-radius:50%; background:var(--amber);
+    box-shadow:0 0 14px var(--amber); margin-right:10px; }
+  #scan6 { position:absolute; left:0; right:0; height:90px; opacity:.5; pointer-events:none;
+    background:linear-gradient(180deg, transparent, rgba(92,255,61,.16), transparent); }
+  .c6row { position:absolute; left:950px; display:flex; align-items:center; gap:26px; opacity:0; }
+  .c6row .cc { width:60px; height:60px; border-radius:50%; border:4px solid var(--greenB); flex:0 0 auto;
+    display:flex; align-items:center; justify-content:center; font-size:32px; font-weight:900; color:var(--greenB);
+    box-shadow:0 0 24px rgba(92,255,61,.4); }
+  .c6row .ct6 { font-size:37px; font-weight:700; color:#dff0da; }
+  #badge6 { position:absolute; left:950px; top:700px; width:600px; border:5px solid var(--greenB); border-radius:24px;
+    padding:30px 20px; text-align:center; background:rgba(8,20,8,.92);
+    box-shadow:0 0 60px rgba(92,255,61,.4), inset 0 0 40px rgba(92,255,61,.12); opacity:0; }
+  #badge6 .b1 { font-size:52px; font-weight:900; letter-spacing:5px; color:var(--greenB); text-shadow:0 0 26px var(--green); }
+  #badge6 .b2 { font-size:40px; font-weight:900; letter-spacing:4px; color:#eafce5; margin-top:8px; }
+
+  /* ================= SHOT 7 — THE SHIFT ================= */
+  #s7 { background:#010201; }
+  .mpanel { position:absolute; top:210px; width:700px; height:580px; border-radius:28px; overflow:hidden;
+    background:linear-gradient(168deg, rgba(10,10,10,.96), rgba(3,3,3,.96)); opacity:0; }
+  #reac { left:140px; border:4px solid var(--red); box-shadow:0 0 50px rgba(255,59,47,.3); }
+  #proa { left:1080px; border:4px solid var(--greenB); box-shadow:0 0 50px rgba(92,255,61,.35); }
+  .mpanel .pt { text-align:center; font-size:46px; font-weight:900; letter-spacing:5px; margin-top:28px; }
+  #reac .pt { color:#ff5b4f; text-shadow:0 0 24px rgba(255,59,47,.6); }
+  #proa .pt { color:var(--greenB); text-shadow:0 0 24px rgba(92,255,61,.6); }
+  .mpanel .ps { text-align:center; font-size:26px; font-weight:600; margin-top:6px; color:#a8b3a8; }
+  .maparea { position:absolute; left:26px; right:26px; top:150px; bottom:26px; border-radius:18px; overflow:hidden; }
+  #reac .maparea { background:
+    repeating-linear-gradient(rgba(120,120,120,.09) 0 1px, transparent 1px 46px),
+    repeating-linear-gradient(90deg, rgba(120,120,120,.09) 0 1px, transparent 1px 54px), #070505; }
+  #proa .maparea { background:
+    repeating-linear-gradient(rgba(61,190,41,.14) 0 1px, transparent 1px 46px),
+    repeating-linear-gradient(90deg, rgba(61,190,41,.14) 0 1px, transparent 1px 54px), #030a03; }
+  .rdot { position:absolute; width:16px; height:16px; border-radius:50%; background:var(--red);
+    box-shadow:0 0 16px rgba(255,59,47,.9); opacity:0; }
+  .gdot7 { position:absolute; width:10px; height:10px; border-radius:50%; background:var(--greenB);
+    box-shadow:0 0 12px var(--green); opacity:0; }
+  #heat { position:absolute; left:270px; top:190px; width:260px; height:260px; border-radius:50%;
+    background:radial-gradient(circle, rgba(255,140,40,.85), rgba(255,59,47,.45) 45%, transparent 70%); opacity:0; }
+  .radar { position:absolute; left:400px; top:320px; border-radius:50%; border:3px solid rgba(92,255,61,.8);
+    box-shadow:0 0 20px rgba(61,190,41,.5); opacity:0; }
+  #callout { position:absolute; left:430px; top:36px; width:230px; border-radius:16px; border:3px solid var(--greenB);
+    background:rgba(4,12,4,.95); padding:16px 20px; box-shadow:0 0 30px rgba(92,255,61,.4); opacity:0; }
+  #callout .c1 { font-size:29px; font-weight:900; color:var(--greenB); }
+  #callout .c2 { font-size:23px; font-weight:700; color:#eef5ec; margin-top:4px; }
+  #callout .c3 { font-size:19px; color:#9fb3a2; margin-top:2px; }
+  #arr7 { position:absolute; left:880px; top:450px; width:160px; height:100px; opacity:0; }
+  #arr7 .bar { position:absolute; left:0; top:32px; width:100px; height:36px; border-radius:6px;
+    background:linear-gradient(90deg, #2f9e1e, var(--greenB)); box-shadow:0 0 34px var(--green); }
+  #arr7 .tip { position:absolute; left:96px; top:0; width:0; height:0; border-top:50px solid transparent;
+    border-bottom:50px solid transparent; border-left:64px solid var(--greenB);
+    filter:drop-shadow(0 0 20px var(--green)); }
+  #s7cap { position:absolute; left:0; right:0; bottom:70px; text-align:center; font-size:38px; font-weight:700;
+    color:#dff5da; text-shadow:0 0 20px rgba(61,190,41,.5); opacity:0; }
+
+  /* ================= SHOT 8 — BENEFITS ================= */
+  #s8 { background:radial-gradient(ellipse at 50% 50%, rgba(61,190,41,.06), transparent 60%), #010201; }
+  #div8 { position:absolute; left:958px; top:170px; width:4px; height:700px;
+    background:linear-gradient(180deg, transparent, rgba(92,255,61,.7), transparent); opacity:0; }
+  .bpanel { position:absolute; top:180px; width:770px; height:690px; border-radius:28px; padding:36px 46px; opacity:0; }
+  #bcust { left:110px; border:4px solid var(--blue); background:linear-gradient(168deg, rgba(6,14,26,.95), rgba(2,5,10,.95));
+    box-shadow:0 0 50px rgba(74,163,255,.25); }
+  #bsaf { left:1040px; border:4px solid var(--greenB); background:linear-gradient(168deg, rgba(7,18,8,.95), rgba(2,7,3,.95));
+    box-shadow:0 0 50px rgba(92,255,61,.3); }
+  .bpanel h3 { font-size:46px; font-weight:900; letter-spacing:4px; text-align:center; }
+  #bcust h3 { color:var(--blue); text-shadow:0 0 24px rgba(74,163,255,.6); }
+  #bsaf h3 { color:var(--greenB); text-shadow:0 0 24px rgba(92,255,61,.6); }
+  .brow { display:flex; align-items:center; gap:28px; margin-top:34px; opacity:0; }
+  .brow .bic { width:88px; height:88px; border-radius:50%; flex:0 0 auto; display:flex; align-items:center;
+    justify-content:center; font-size:42px; background:rgba(255,255,255,.05); }
+  #bcust .bic { border:3px solid rgba(74,163,255,.7); }
+  #bsaf .bic { border:3px solid rgba(92,255,61,.7); }
+  .brow .btx { font-size:38px; font-weight:800; color:#eef5ec; }
+  .brow .bck { margin-left:auto; font-size:42px; font-weight:900; color:var(--greenB); text-shadow:0 0 20px var(--green); }
+  #s8cap { position:absolute; left:0; right:0; bottom:56px; text-align:center; font-size:34px; font-weight:700;
+    color:#cfe3c9; opacity:0; }
+
+  /* ================= SHOT 9 — BUSINESS CASE ================= */
+  #s9 { background:#010201; }
+  .cpanel { position:absolute; top:150px; width:700px; height:450px; border-radius:26px; padding:28px 40px; opacity:0; }
+  #ccr { left:120px; border:4px solid var(--red); background:linear-gradient(168deg, rgba(26,6,4,.95), rgba(9,2,1,.95));
+    box-shadow:0 0 44px rgba(255,59,47,.3); }
+  #pde { left:1100px; border:4px solid var(--greenB); background:linear-gradient(168deg, rgba(7,18,8,.95), rgba(2,7,3,.95));
+    box-shadow:0 0 44px rgba(92,255,61,.35); }
+  .cpanel h3 { font-size:38px; font-weight:900; letter-spacing:3px; text-align:center; }
+  #ccr h3 { color:#ff5b4f; } #pde h3 { color:var(--greenB); }
+  .crow9 { display:flex; align-items:center; gap:20px; margin-top:22px; font-size:29px; font-weight:700;
+    color:#eadfdd; opacity:0; }
+  .crow9 b { font-size:31px; }
+  #ccr .crow9 b { color:var(--red); } #pde .crow9 b { color:var(--greenB); }
+  #arr9 { position:absolute; left:880px; top:320px; width:160px; height:100px; opacity:0; }
+  #arr9 .bar { position:absolute; left:0; top:32px; width:100px; height:36px; border-radius:6px;
+    background:linear-gradient(90deg, #2f9e1e, var(--greenB)); box-shadow:0 0 34px var(--green); }
+  #arr9 .tip { position:absolute; left:96px; top:0; width:0; height:0; border-top:50px solid transparent;
+    border-bottom:50px solid transparent; border-left:64px solid var(--greenB);
+    filter:drop-shadow(0 0 20px var(--green)); }
+  .chart { position:absolute; top:650px; width:520px; height:290px; border-radius:22px; border:3px solid #2c3a2c;
+    background:linear-gradient(168deg, rgba(8,14,8,.96), rgba(3,6,3,.96)); padding:20px 30px; opacity:0; }
+  #ch1 { left:140px; } #ch2 { left:700px; } #ch3 { left:1260px; }
+  .chart h4 { font-size:25px; font-weight:900; letter-spacing:2px; color:#cfe3c9; text-align:center; }
+  .chart h4 span { font-size:30px; }
+  .bars { position:absolute; left:40px; right:40px; bottom:26px; top:78px; display:flex; align-items:flex-end;
+    justify-content:space-between; }
+  .bars i { display:block; width:56px; border-radius:8px 8px 3px 3px; }
+  #s9cap { position:absolute; left:0; right:0; bottom:34px; text-align:center; font-size:34px; font-weight:700;
+    color:#dff5da; text-shadow:0 0 18px rgba(61,190,41,.5); opacity:0; }
+
+  /* ================= SHOT 10 — STATEMENT ================= */
+  #s10 { background:radial-gradient(ellipse at 50% 60%, rgba(61,190,41,.07), transparent 55%), #010201; }
+  #ph10 { position:absolute; left:810px; top:240px; width:300px; height:600px; border-radius:44px;
+    border:3px solid rgba(92,255,61,.4); background:rgba(6,12,6,.5);
+    box-shadow:0 0 60px rgba(61,190,41,.25); opacity:.13; }
+  .p10 { position:absolute; width:6px; height:6px; border-radius:50%; background:var(--green);
+    box-shadow:0 0 10px var(--green); opacity:.5; }
+  .stmt { position:absolute; left:80px; right:80px; top:44%; text-align:center; font-size:80px; font-weight:800;
+    color:#f2f7f0; text-shadow:0 0 30px rgba(255,255,255,.25); opacity:0; }
+  .stmt em { font-style:normal; color:var(--greenB); text-shadow:0 0 34px rgba(92,255,61,.7); }
+  #st4 { font-weight:900; }
+
+  /* ================= SHOT 11 — TAGLINE ================= */
+  #s11 { background:radial-gradient(ellipse at 50% 50%, rgba(61,190,41,.09), transparent 60%), #000; }
+  #s11img { position:absolute; left:150px; top:157px; width:430px; height:766px; object-fit:cover;
+    border-radius:26px; opacity:0; filter:contrast(1.06) saturate(1.05);
+    box-shadow:0 0 70px rgba(61,190,41,.35); }
+  #logo11 { position:absolute; left:660px; top:280px; width:640px; }
+  #logo11 div { font-weight:900; opacity:0; }
+  #l11a, #l11b { font-size:96px; letter-spacing:8px; color:#fff; line-height:1.08; }
+  #l11c { font-size:60px; letter-spacing:5px; color:var(--greenB); text-shadow:0 0 30px rgba(92,255,61,.7); margin-top:6px; }
+  #tags11 { position:absolute; left:1330px; top:330px; }
+  .tag11 { display:flex; align-items:center; gap:22px; margin-top:38px; opacity:0; }
+  .tag11 .tc { width:64px; height:64px; border-radius:50%; border:4px solid var(--greenB); flex:0 0 auto;
+    display:flex; align-items:center; justify-content:center; font-size:34px; font-weight:900; color:var(--greenB);
+    box-shadow:0 0 22px rgba(92,255,61,.45); }
+  .tag11 .tt { font-size:37px; font-weight:800; color:#eef5ec; white-space:nowrap; }
+  #saf11 { position:absolute; left:660px; top:700px; font-size:58px; font-weight:900; font-style:italic;
+    color:var(--greenB); text-shadow:0 0 30px rgba(92,255,61,.6); opacity:0; }
+  #bot11 { position:absolute; left:0; right:0; bottom:74px; text-align:center; opacity:0; }
+  #bot11 span { display:inline-block; border:3px solid var(--green); border-radius:16px; padding:18px 54px;
+    font-size:34px; font-weight:800; color:#dff5da; background:rgba(6,14,6,.9);
+    box-shadow:0 0 30px rgba(61,190,41,.3); }
+  .rip11 { position:absolute; border-radius:50%; border:14px solid var(--greenB);
+    box-shadow:0 0 60px var(--green), inset 0 0 60px var(--green); opacity:0; }
+  #flash11 { position:absolute; inset:0; background:radial-gradient(circle, #eaffe4 0%, #52e03a 45%, #0c2408 100%); opacity:0; }
+
+  #vignette { position:absolute; inset:0; pointer-events:none;
+    background:radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.55) 100%); }
+</style>
+</head>
+<body>
+
+<!-- SHOT 1: the reveal (0-9) -->
+<div class="shot" id="s1">
+  <div id="p1host"></div>
+  <div id="ring1host"></div>
+  <img id="s1img" src="clip1B-onetap-button.png" alt="">
+  <div id="rip1host"></div>
+  <div id="s1flash"></div>
+  <div id="logo1">
+    <div id="lg1">ONE-TAP</div>
+    <div id="lg2">TELCO</div>
+    <div id="lg3">PROBLEM REPORTER</div>
+  </div>
+  <div id="s1sub">A diagnostic-first support experience — built into My OneApp and SIM Toolkit.</div>
+  <div id="badges1">
+    <div class="bdg saf">Safaricom</div>
+    <div class="bdg" id="bdg2">▦ SIM TOOLKIT</div>
+    <div class="bdg" id="bdg3">📱 MY ONEAPP</div>
+  </div>
+</div>
+
+<!-- SHOT 2: customer demo (9-19) -->
+<div class="shot" id="s2">
+  <div id="ph2wrap">
+    <div id="ph2">
+      <div class="notch"></div>
+      <div id="scr2">
+        <div class="pg" id="pg1">
+          <div class="app">My OneApp</div>
+          <div class="ttl">Report an Issue</div>
+          <div class="mrow"><span class="mi">📱</span>SIM Toolkit / M-PESA</div>
+          <div class="mrow"><span class="mi">🧾</span>Till Number Issues</div>
+          <div class="mrow"><span class="mi">📶</span>Network &amp; Data</div>
+          <div class="mrow"><span class="mi">⚠️</span>Report Fraud</div>
+        </div>
+        <div class="pg" id="pg2">
+          <div class="shield">🛡️</div>
+          <div class="ct">Share Diagnostic Information?</div>
+          <div class="note">To help resolve your issue faster, One-Tap Telco Problem Reporter will securely share:</div>
+          <div class="crow"><b>✓</b>Device Information</div>
+          <div class="crow"><b>✓</b>Network Diagnostics</div>
+          <div class="crow"><b>✓</b>SIM Status</div>
+          <div class="crow"><b>✓</b>Service Status &amp; Error Codes</div>
+          <div class="priv">Your data will only be used to investigate this issue.</div>
+          <div class="btnA" id="btnAllow">ALLOW &amp; CONTINUE</div>
+          <div class="btnC">CANCEL</div>
+        </div>
+        <div class="pg" id="pg3">
+          <div class="ttl" style="text-align:center">Review &amp; Submit</div>
+          <div class="bigchk">✓</div>
+          <div class="note3">Your issue will be reported with diagnostic information.</div>
+          <div class="btnA" id="btnSub">SUBMIT</div>
+        </div>
+        <div id="suc2"><div class="sc">✓</div></div>
+      </div>
+      <div id="taphost"></div>
+      <div id="sdothost"></div>
+    </div>
+  </div>
+  <div id="wf">
+    <div class="wfc" id="w0"><div class="cir">👆</div><div class="lbl">SELECT</div></div>
+    <div class="wfa" id="wa0">↓</div>
+    <div class="wfc" id="w1"><div class="cir">🛡️</div><div class="lbl">CONSENT</div></div>
+    <div class="wfa" id="wa1">↓</div>
+    <div class="wfc" id="w2"><div class="cir">📤</div><div class="lbl">SUBMIT</div></div>
+    <div class="wfa" id="wa2">↓</div>
+    <div class="wfc" id="w3"><div class="cir">✅</div><div class="lbl">DONE</div></div>
+  </div>
+</div>
+
+<!-- SHOT 3: automated diagnostics (19-31) -->
+<div class="shot" id="s3">
+  <div class="khdr" id="k3">AUTOMATED DIAGNOSTICS</div>
+  <div id="plat3"></div><div id="platr"></div>
+  <div id="scanring"></div>
+  <svg id="beams3" width="1920" height="1080" style="position:absolute;inset:0"></svg>
+  <div id="ph3"><div class="notch"></div><div id="ph3core"></div><div id="chk3">✓</div></div>
+  <div id="chk3ring"></div>
+  <div id="icon3host"></div>
+  <div id="ddothost"></div>
+</div>
+
+<!-- SHOT 4: intelligent routing (31-42) -->
+<div class="shot" id="s4">
+  <div class="khdr" id="k4">INTELLIGENT ROUTING</div>
+  <svg id="route4" width="1920" height="1080"></svg>
+  <div id="bundle"><div class="bi">📦</div><div class="bl">DIAGNOSTIC BUNDLE</div></div>
+  <div id="fraghost"></div>
+  <div id="tchip">🎫 TICKET + DIAGNOSTICS</div>
+  <div id="midnode"><div class="mi4">👥👥👥</div><div class="ml">CALL CENTRE<br>QUEUE / IVR</div></div>
+  <div id="midX">✕</div>
+  <div id="spec"><div class="si">🎧</div><div class="sl">SPECIALIST TEAM</div><div class="schk" id="schk">✓</div></div>
+  <div id="ghosthost"></div>
+  <div id="trav">🎫 TICKET</div>
+  <div class="pill4" id="pl0" style="left:330px">NO GUESSING</div>
+  <div class="pill4" id="pl1" style="left:790px">NO REPEATING</div>
+  <div class="pill4" id="pl2" style="left:1270px">NO DISCOVERY PHASE</div>
+</div>
+
+<!-- SHOT 5: every issue captured (42-48) -->
+<div class="shot" id="s5">
+  <div id="s5bgR"></div><div id="s5bgG"></div>
+  <div id="s5frame"><img src="s2-thumb-end.png" alt=""><div id="s5tint"></div></div>
+  <div id="flip">
+    <div class="fcard" id="fFront">📵 CALL ENDED</div>
+    <div class="fcard" id="fBack">🎫 TICKET CREATED</div>
+  </div>
+  <div id="bigchk5">✓</div>
+  <div id="s5cap">Every issue is captured — even if the customer never reaches an agent.</div>
+</div>
+
+<!-- SHOT 6: live ticket (48-80) -->
+<div class="shot" id="s6">
+  <div class="khdr" id="k6">THE TICKET — LIVE</div>
+  <div id="tpanel">
+    <div class="thd"><span class="bk">‹</span><span class="tt">Ticket Details</span><span id="live6">● LIVE</span></div>
+    <div class="trow" id="tr0"><div class="tl6">REPORTED ISSUE</div><div class="tv6" id="tv0"></div></div>
+    <div class="trow" id="tr1"><div class="tl6">TICKET STATUS</div><div class="tv6" id="tv1"></div></div>
+    <div class="trow" id="tr2"><div class="tl6">ASSIGNED TEAM</div><div class="tv6" id="tv2"></div></div>
+    <div class="trow" id="tr3"><div class="tl6">DIAGNOSTIC ATTACHED</div><div class="tv6" id="tv3"></div></div>
+    <div class="trow" id="tr4"><div class="tl6">RESOLUTION ETA</div><div class="tv6" id="tv4"></div></div>
+    <div id="scan6"></div>
+  </div>
+  <div class="c6row" id="c60" style="top:250px"><div class="cc">✓</div><div class="ct6">Captured automatically</div></div>
+  <div class="c6row" id="c61" style="top:352px"><div class="cc">✓</div><div class="ct6">Routed to the right team</div></div>
+  <div class="c6row" id="c62" style="top:454px"><div class="cc">✓</div><div class="ct6">Diagnostic attached</div></div>
+  <div class="c6row" id="c63" style="top:556px"><div class="cc">✓</div><div class="ct6">No questions asked</div></div>
+  <div id="badge6"><div class="b1">ZERO REPEATS.</div><div class="b2">FASTER RESOLUTION.</div></div>
+</div>
+
+<!-- SHOT 7: the shift (80-97.5) -->
+<div class="shot" id="s7">
+  <div class="khdr" id="k7">THE SHIFT — REACTIVE TO PROACTIVE</div>
+  <div class="mpanel" id="reac">
+    <div class="pt">REACTIVE</div><div class="ps">Wait for complaints</div>
+    <div class="maparea" id="rmap"></div>
+  </div>
+  <div id="arr7"><div class="bar"></div><div class="tip"></div></div>
+  <div class="mpanel" id="proa">
+    <div class="pt">PROACTIVE</div><div class="ps">See issues as they happen</div>
+    <div class="maparea" id="gmap">
+      <div id="heat"></div>
+      <div id="radarhost"></div>
+      <div id="gdothost7"></div>
+      <div id="callout"><div class="c1">Tower 14B</div><div class="c2">47 reports</div><div class="c3">Last 2 hours</div></div>
+    </div>
+  </div>
+  <div id="s7cap">Real-time visibility. Issues solved before customers complain.</div>
+</div>
+
+<!-- SHOT 8: benefits (97.5-108) -->
+<div class="shot" id="s8">
+  <div class="khdr" id="k8">THE DUAL PAYOFF</div>
+  <div id="div8"></div>
+  <div class="bpanel" id="bcust">
+    <h3>FOR CUSTOMERS</h3>
+    <div class="brow"><div class="bic">🕐</div><div class="btx">Zero Wait</div><div class="bck">✓</div></div>
+    <div class="brow"><div class="bic">🔎</div><div class="btx">More Transparency</div><div class="bck">✓</div></div>
+    <div class="brow"><div class="bic">⚡</div><div class="btx">Faster Resolution</div><div class="bck">✓</div></div>
+  </div>
+  <div class="bpanel" id="bsaf">
+    <h3>FOR SAFARICOM</h3>
+    <div class="brow"><div class="bic">📉</div><div class="btx">Lower Support Volume</div><div class="bck">✓</div></div>
+    <div class="brow"><div class="bic">💰</div><div class="btx">Lower Costs</div><div class="bck">✓</div></div>
+    <div class="brow"><div class="bic">📡</div><div class="btx">Better Network Intelligence</div><div class="bck">✓</div></div>
+    <div class="brow"><div class="bic">😊</div><div class="btx">Higher Satisfaction</div><div class="bck">✓</div></div>
+  </div>
+  <div id="s8cap">Better for customers. Smarter for Safaricom.</div>
+</div>
+
+<!-- SHOT 9: business case (108-130) -->
+<div class="shot" id="s9">
+  <div class="khdr" id="k9">THE BUSINESS CASE</div>
+  <div class="cpanel" id="ccr">
+    <h3>REACTIVE COST CENTRE</h3>
+    <div class="crow9"><b>✕</b>High Call Volume</div>
+    <div class="crow9"><b>✕</b>High Operational Cost</div>
+    <div class="crow9"><b>✕</b>Reactive to Complaints</div>
+    <div class="crow9"><b>✕</b>Low Visibility</div>
+  </div>
+  <div id="arr9"><div class="bar"></div><div class="tip"></div></div>
+  <div class="cpanel" id="pde">
+    <h3>PROACTIVE DATA ENGINE</h3>
+    <div class="crow9"><b>✓</b>Fewer Support Calls</div>
+    <div class="crow9"><b>✓</b>Lower Operational Cost</div>
+    <div class="crow9"><b>✓</b>Proactive Problem Solving</div>
+    <div class="crow9"><b>✓</b>Data-Driven Decisions</div>
+    <div class="crow9"><b>✓</b>Higher Customer Satisfaction</div>
+  </div>
+  <div class="chart" id="ch1"><h4>SUPPORT CALLS <span style="color:var(--greenB)">↓</span></h4><div class="bars" id="cb1"></div></div>
+  <div class="chart" id="ch2"><h4>OPERATIONAL COST <span style="color:var(--greenB)">↓</span></h4><div class="bars" id="cb2"></div></div>
+  <div class="chart" id="ch3"><h4>SATISFACTION <span style="color:var(--greenB)">↑</span></h4><div class="bars" id="cb3"></div></div>
+  <div id="s9cap">A shift from reactive cost centre to a proactive, data-driven engine.</div>
+</div>
+
+<!-- SHOT 10: the statement (130-144) -->
+<div class="shot" id="s10">
+  <div id="p10host"></div>
+  <div id="ph10"></div>
+  <div class="stmt" id="st1">This isn't another chatbot.</div>
+  <div class="stmt" id="st2">This isn't another support channel.</div>
+  <div class="stmt" id="st3">This is <em>diagnostic-driven</em> support.</div>
+  <div class="stmt" id="st4">Capture problems <em>the moment they happen.</em></div>
+</div>
+
+<!-- SHOT 11: final tagline (144-149) -->
+<div class="shot" id="s11">
+  <img id="s11img" src="clip1B-onetap-button.png" alt="">
+  <div id="rip11host"></div>
+  <div id="flash11"></div>
+  <div id="logo11">
+    <div id="l11a">ONE-TAP</div>
+    <div id="l11b">TELCO</div>
+    <div id="l11c">PROBLEM REPORTER</div>
+  </div>
+  <div id="tags11">
+    <div class="tag11"><div class="tc">✓</div><div class="tt">One tap.</div></div>
+    <div class="tag11"><div class="tc">✓</div><div class="tt">Every issue captured.</div></div>
+    <div class="tag11"><div class="tc">✓</div><div class="tt">Faster resolution.</div></div>
+  </div>
+  <div id="saf11">Safaricom</div>
+  <div id="bot11"><span>Better for customers. Smarter for Safaricom.</span></div>
+</div>
+
+<div id="vignette"></div>
+
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const clamp01 = v => v < 0 ? 0 : v > 1 ? 1 : v;
+const seg = (t,a,b) => clamp01((t-a)/(b-a));
+const lerp = (a,b,p) => a + (b-a)*p;
+const eo = p => 1 - Math.pow(1-p,3);
+const eio = p => p < .5 ? 4*p*p*p : 1 - Math.pow(-2*p+2,3)/2;
+const eb = p => { const c=1.70158; return 1 + (c+1)*Math.pow(p-1,3) + c*Math.pow(p-1,2); };
+const rnd = (i,s) => { const x = Math.sin(i*12.9898 + s*78.233)*43758.5453; return x - Math.floor(x); };
+
+/* ============ static builds ============ */
+// S1 particles + rings + ripples
+const P1C = { x:960, y:465 };
+const p1s = [];
+{
+  const host = $("p1host");
+  for (let i = 0; i < 110; i++) {
+    const p = document.createElement("div");
+    p.className = "gp";
+    host.appendChild(p);
+    p1s.push({el:p, ring:i%3, ang:rnd(i,1)*Math.PI*2, sx:rnd(i,2)*1920, sy:rnd(i,3)*1080, d0:.3+rnd(i,4)*.9});
+  }
+}
+const ring1s = [];
+{
+  const host = $("ring1host");
+  for (let i = 0; i < 3; i++) {
+    const r = document.createElement("div");
+    r.className = "ring1";
+    host.appendChild(r); ring1s.push(r);
+  }
+}
+const rip1s = [];
+{
+  const host = $("rip1host");
+  for (let i = 0; i < 3; i++) {
+    const r = document.createElement("div");
+    r.className = "ripL";
+    host.appendChild(r); rip1s.push(r);
+  }
+}
+// S2 tap ripples: [x,y,time] in phone coords
+const TAPS = [[195,200,12.3],[195,615,15.4],[195,455,17.1]];
+const tapEls = [];
+{
+  const host = $("taphost");
+  TAPS.forEach(() => {
+    const a = document.createElement("div"); a.className = "tapr";
+    const b = document.createElement("div"); b.className = "tapr";
+    host.appendChild(a); host.appendChild(b); tapEls.push([a,b]);
+  });
+}
+const sdots = [];
+{
+  const host = $("sdothost");
+  for (let i = 0; i < 10; i++) {
+    const d = document.createElement("div");
+    d.className = "sdot";
+    host.appendChild(d); sdots.push(d);
+  }
+}
+// S3 icons: [emoji, label, homeX, homeY, fromX, fromY, tStart]
+const PH3 = { x:960, y:510 };
+const ICONS3 = [
+  ["💳","SIM STATUS",           430, 265, -320, 265, 20.6],
+  ["📱","DEVICE INFO",          390, 530, -320, 1350, 21.9],
+  ["📡","NETWORK DIAGNOSTICS",  470, 795, -320, 795, 23.2],
+  ["☁️","SERVICE STATUS",      1490, 265, 2260, -200, 24.5],
+  ["🧾","TRANSACTION DATA",    1530, 530, 2260, 530, 25.8],
+  ["⚠️","ERROR CODES",         1450, 795, 2260, 1320, 27.1],
+];
+const icon3Els = [], beam3Els = [], ddotEls = [];
+{
+  const host = $("icon3host"), svg = $("beams3"), dh = $("ddothost");
+  ICONS3.forEach(ic => {
+    const d = document.createElement("div");
+    d.className = "icon3";
+    d.innerHTML = ic[0] + `<div class="il3">${ic[1]}</div>`;
+    host.appendChild(d); icon3Els.push(d);
+    const l = document.createElementNS("http://www.w3.org/2000/svg","line");
+    l.setAttribute("stroke","#3DBE29"); l.setAttribute("stroke-width","4");
+    l.setAttribute("filter","drop-shadow(0 0 6px #3DBE29)");
+    svg.appendChild(l); beam3Els.push(l);
+    const trio = [];
+    for (let j = 0; j < 3; j++) {
+      const dd = document.createElement("div");
+      dd.className = "ddot";
+      dh.appendChild(dd); trio.push(dd);
+    }
+    ddotEls.push(trio);
+  });
+}
+// S4 fragments + path + ghosts
+const fragEls = [];
+{
+  const host = $("fraghost");
+  ICONS3.forEach((ic,i) => {
+    const d = document.createElement("div");
+    d.className = "frag";
+    d.textContent = ic[0];
+    host.appendChild(d); fragEls.push(d);
+  });
+}
+const B4 = { p0:[430,690], p1:[640,140], p2:[1260,120], p3:[1560,470] };
+function bez4(u) {
+  const w = 1-u;
+  const x = w*w*w*B4.p0[0] + 3*w*w*u*B4.p1[0] + 3*w*u*u*B4.p2[0] + u*u*u*B4.p3[0];
+  const y = w*w*w*B4.p0[1] + 3*w*w*u*B4.p1[1] + 3*w*u*u*B4.p2[1] + u*u*u*B4.p3[1];
+  return [x,y];
+}
+let path4;
+{
+  const svg = $("route4");
+  path4 = document.createElementNS("http://www.w3.org/2000/svg","path");
+  path4.setAttribute("d", `M ${B4.p0[0]} ${B4.p0[1]} C ${B4.p1[0]} ${B4.p1[1]}, ${B4.p2[0]} ${B4.p2[1]}, ${B4.p3[0]} ${B4.p3[1]}`);
+  path4.setAttribute("fill","none");
+  path4.setAttribute("stroke","#5cff3d");
+  path4.setAttribute("stroke-width","6");
+  path4.setAttribute("stroke-dasharray","26 18");
+  path4.setAttribute("filter","drop-shadow(0 0 8px #3DBE29)");
+  svg.appendChild(path4);
+}
+const ghost4s = [];
+{
+  const host = $("ghosthost");
+  for (let i = 0; i < 3; i++) {
+    const g = document.createElement("div");
+    g.className = "ghost4";
+    host.appendChild(g); ghost4s.push(g);
+  }
+}
+// S6 ticket values
+const TVALS = [
+  "Can't access Lipa Na M-PESA",
+  "Investigating",
+  "SIM Toolkit Services",
+  "Error 504 — SIM Card Timeout",
+  "3 Hours"
+];
+const TCUE = [49.8, 54.0, 58.0, 62.5, 67.0];
+// S7 dots + radar
+const rdots = [], gdots7 = [];
+{
+  const host = $("rmap");
+  for (let i = 0; i < 14; i++) {
+    const d = document.createElement("div");
+    d.className = "rdot";
+    d.style.left = (40 + rnd(i,11)*560)+"px";
+    d.style.top = (30 + rnd(i,12)*330)+"px";
+    host.appendChild(d); rdots.push(d);
+  }
+  const gh = $("gdothost7");
+  for (let i = 0; i < 12; i++) {
+    const d = document.createElement("div");
+    d.className = "gdot7";
+    d.style.left = (30 + rnd(i,13)*580)+"px";
+    d.style.top = (30 + rnd(i,14)*340)+"px";
+    gh.appendChild(d); gdots7.push(d);
+  }
+}
+const radars = [];
+{
+  const host = $("radarhost");
+  for (let i = 0; i < 3; i++) {
+    const r = document.createElement("div");
+    r.className = "radar";
+    host.appendChild(r); radars.push(r);
+  }
+}
+// S9 chart bars
+const BARS1 = [], BARS2 = [], BARS3 = [];
+{
+  [["cb1",BARS1],["cb2",BARS2],["cb3",BARS3]].forEach(cfg => {
+    const host = $(cfg[0]);
+    for (let i = 0; i < 5; i++) {
+      const b = document.createElement("i");
+      host.appendChild(b); cfg[1].push(b);
+    }
+  });
+}
+// S10 particles
+const p10s = [];
+{
+  const host = $("p10host");
+  for (let i = 0; i < 24; i++) {
+    const p = document.createElement("div");
+    p.className = "p10";
+    p.style.left = (rnd(i,15)*1920)+"px";
+    p.style.top = (rnd(i,16)*1080)+"px";
+    host.appendChild(p); p10s.push(p);
+  }
+}
+// S11 ripples
+const rip11s = [];
+{
+  const host = $("rip11host");
+  for (let i = 0; i < 3; i++) {
+    const r = document.createElement("div");
+    r.className = "ripL rip11";
+    host.appendChild(r); rip11s.push(r);
+  }
+}
+
+const SHOTS = { s1:[0,9.05], s2:[9.05,19.05], s3:[19.05,31.05], s4:[31.05,42.05], s5:[42.05,48.05],
+  s6:[48.05,80.05], s7:[80.05,97.55], s8:[97.55,108.05], s9:[108.05,130.05], s10:[130.05,144.05], s11:[144.05,149.3] };
+
+function render(t) {
+  for (const id in SHOTS) {
+    $(id).style.opacity = (t >= SHOTS[id][0] && t < SHOTS[id][1]) ? 1 : 0;
+  }
+
+  /* ===== SHOT 1 (0-9): the reveal ===== */
+  if (t < 9.3) {
+    $("s1").style.transform = `scale(${1 + .03*seg(t,0,9)})`;
+    const pfade = 1 - seg(t, 2.9, 3.5);          // particles hand off to photo
+    p1s.forEach(p => {
+      const pr = eo(seg(t, p.d0, p.d0 + 1.7));
+      const r = 120 + p.ring*52;
+      const a = p.ang + (1-pr)*3.2;              // swirl in
+      const x = lerp(p.sx, P1C.x + Math.cos(a)*r, pr);
+      const y = lerp(p.sy, P1C.y + Math.sin(a)*r, pr);
+      p.el.style.opacity = pr * pfade * .95;
+      p.el.style.left = x+"px"; p.el.style.top = y+"px";
+    });
+    ring1s.forEach((r,i) => {
+      const ri = eo(seg(t, 2.0+i*.15, 2.5+i*.15));
+      const base = (120 + i*52) * 2;
+      const pulse = 1 + .07*Math.sin((t-2.5)*5 + i);
+      const d = base * pulse;
+      r.style.opacity = ri * pfade * (0.85 - i*.18);
+      r.style.width = r.style.height = d+"px";
+      r.style.left = (P1C.x - d/2)+"px"; r.style.top = (P1C.y - d/2)+"px";
+    });
+    // photo: fade in 2.6-3.3, press punch at 3.8, out 4.6-5.2
+    const pin = seg(t, 2.6, 3.3), pout = seg(t, 4.6, 5.2);
+    const punch = t >= 3.8 && t < 4.15 ? 1 - .04*Math.sin(seg(t,3.8,4.15)*Math.PI) : 1;
+    $("s1img").style.opacity = pin * (1-pout);
+    $("s1img").style.transform = `scale(${(1.04 + .06*seg(t,2.6,5)) * punch})`;
+    // ripples at 4.0
+    rip1s.forEach((r,i) => {
+      const p = seg(t, 4.0 + i*.16, 4.7 + i*.16);
+      const d = lerp(80, 2500, eo(p));
+      r.style.opacity = (p > 0 && p < 1) ? (1-p) : 0;
+      r.style.width = r.style.height = d+"px";
+      r.style.left = (975 - d/2)+"px"; r.style.top = (470 - d/2)+"px";
+    });
+    const fp = seg(t, 4.05, 4.5);
+    $("s1flash").style.opacity = fp > 0 && fp < 1 ? Math.sin(fp*Math.PI)*.9 : 0;
+    // logo words
+    [["lg1",4.9],["lg2",5.7],["lg3",6.5]].forEach(cfg => {
+      const p = eo(seg(t, cfg[1], cfg[1]+.5));
+      const el = $(cfg[0]);
+      el.style.opacity = p;
+      el.style.transform = `scale(${lerp(1.9,1,p)})`;
+      el.style.filter = `drop-shadow(0 0 ${lerp(60,6,p)}px rgba(92,255,61,${lerp(.95,.2,p)}))`;
+    });
+    const sb = eo(seg(t, 7.0, 7.5));
+    $("s1sub").style.opacity = sb;
+    $("s1sub").style.transform = `translateY(${lerp(26,0,sb)}px)`;
+    [...$("badges1").children].forEach((el,i) => {
+      const p = eo(seg(t, 7.5+i*.3, 7.9+i*.3));
+      el.style.opacity = p;
+      el.style.transform = `translateY(${lerp(34,0,p)}px)`;
+    });
+  }
+
+  /* ===== SHOT 2 (9-19): customer demo ===== */
+  if (t >= 8.9 && t < 19.3) {
+    $("s2").style.transform = `scale(${1 + .04*seg(t,9,19)})`;
+    // phone rotates into view
+    const pin = eo(seg(t, 9.2, 10.0));
+    const sway = Math.sin(t*.75)*4;
+    $("ph2wrap").style.opacity = pin;
+    $("ph2wrap").style.transform = `rotateY(${lerp(62, sway, pin)}deg) translateY(${lerp(60,0,pin)}px) scale(${lerp(.85,1,pin)})`;
+    // menu rows bounce in
+    [...document.querySelectorAll("#pg1 .mrow")].forEach((el,i) => {
+      const p = seg(t, 10.4+i*.45, 10.85+i*.45);
+      el.style.opacity = Math.min(1, p*1.4);
+      el.style.transform = `translateY(${lerp(46,0,eb(p))}px) scale(${lerp(.75,1,eb(p))})`;
+      if (i === 0 && t > 12.35) {
+        el.style.borderColor = "#5cff3d";
+        el.style.boxShadow = "0 0 26px rgba(92,255,61,.55)";
+        el.style.background = "rgba(38,80,30,.75)";
+      }
+    });
+    // page transitions
+    const sl1 = eio(seg(t, 12.9, 13.4));   // pg1 -> pg2
+    const sl2 = eio(seg(t, 15.9, 16.4));   // pg2 -> pg3
+    $("pg1").style.transform = `translateX(${-sl1*106}%)`;
+    $("pg2").style.transform = `translateX(${(1-sl1)*106 - sl2*106}%)`;
+    $("pg3").style.transform = `translateX(${(1-sl2)*106}%)`;
+    // consent rows
+    [...document.querySelectorAll("#pg2 .crow")].forEach((el,i) => {
+      const p = eo(seg(t, 13.6+i*.25, 13.95+i*.25));
+      el.style.opacity = p;
+      el.style.transform = `translateX(${lerp(30,0,p)}px)`;
+    });
+    // allow button press flash
+    $("btnAllow").style.boxShadow = (t > 15.4 && t < 15.75)
+      ? "0 0 60px rgba(92,255,61,.95)" : "0 0 30px rgba(61,190,41,.45)";
+    // submit pulse
+    const spulse = t > 16.4 ? .5 + .5*Math.sin((t-16.4)*6) : 0;
+    $("btnSub").style.boxShadow = `0 0 ${30+40*spulse}px rgba(92,255,61,${.4+.45*spulse})`;
+    // success
+    const su = eo(seg(t, 17.5, 17.9));
+    $("suc2").style.opacity = su;
+    $("suc2").querySelector(".sc").style.transform = `scale(${Math.max(.001, eb(seg(t,17.55,18.0)))})`;
+    sdots.forEach((d,i) => {
+      const p = seg(t, 17.55, 18.35);
+      const a = i*(Math.PI*2/10);
+      d.style.opacity = (p > 0 && p < 1) ? (1-p) : 0;
+      d.style.left = (195 + Math.cos(a)*eo(p)*210)+"px";
+      d.style.top = (400 + Math.sin(a)*eo(p)*210)+"px";
+    });
+    // tap ripples
+    TAPS.forEach((tp,i) => {
+      tapEls[i].forEach((el,j) => {
+        const p = seg(t, tp[2]+j*.12, tp[2]+.55+j*.12);
+        const d = lerp(22, 150, eo(p));
+        el.style.opacity = (p > 0 && p < 1) ? (1-p)*.95 : 0;
+        el.style.width = el.style.height = d+"px";
+        el.style.left = (tp[0]-d/2)+"px"; el.style.top = (tp[1]-d/2)+"px";
+      });
+    });
+    // workflow lights
+    const WT = [12.5, 15.5, 17.25, 18.1];
+    WT.forEach((wt,i) => {
+      const on = eo(seg(t, wt, wt+.4));
+      const el = $("w"+i);
+      el.style.opacity = lerp(.22, 1, on);
+      el.style.transform = `translateX(${lerp(0,26,on)}px) scale(${lerp(1,1.06,on)})`;
+      el.querySelector(".cir").style.borderColor = on > .5 ? "#5cff3d" : "#2c3f2e";
+      el.querySelector(".cir").style.boxShadow = on > .5 ? "0 0 30px rgba(92,255,61,.55)" : "none";
+      el.querySelector(".lbl").style.color = on > .5 ? "#5cff3d" : "#dfe6dd";
+      el.querySelector(".lbl").style.textShadow = on > .5 ? "0 0 22px rgba(92,255,61,.7)" : "none";
+      if (i < 3) $("wa"+i).style.color = t > WT[i+1] - .2 ? "#5cff3d" : "#3f553f";
+    });
+  }
+
+  /* ===== SHOT 3 (19-31): automated diagnostics ===== */
+  if (t >= 18.9 && t < 31.3) {
+    $("s3").style.transform = `scale(${1 + .045*seg(t,19,31)})`;
+    $("k3").style.opacity = eo(seg(t, 19.5, 20.1));
+    const ch = eo(seg(t, 19.3, 20.0));
+    $("plat3").style.opacity = ch;
+    $("platr").style.opacity = ch*.8;
+    $("scanring").style.opacity = ch*.9;
+    $("scanring").style.transform = `rotate(${t*95}deg)`;
+    // phone drop-in + bob
+    const pd = eo(seg(t, 19.5, 20.2));
+    let attached = 0;
+    ICONS3.forEach(ic => { if (t > ic[6] + .5) attached++; });
+    const bob = Math.sin(t*1.9)*10;
+    $("ph3").style.opacity = pd;
+    $("ph3").style.transform = `translateY(${lerp(-90,0,pd) + bob}px) rotate(${Math.sin(t*.85)*2}deg)`;
+    $("ph3").style.boxShadow =
+      `0 0 ${30+attached*16}px rgba(61,190,41,${.4+attached*.09}), inset 0 0 ${18+attached*8}px rgba(61,190,41,.3)`;
+    const corePulse = 1 + .25*Math.sin(t*4) + attached*.1;
+    $("ph3core").style.transform = `scale(${corePulse})`;
+    $("ph3core").style.opacity = t < 29.4 ? 1 : 1 - seg(t,29.4,29.7);
+    // icons + beams + flowing particles
+    icon3Els.forEach((el,i) => {
+      const ic = ICONS3[i];
+      const p = eo(seg(t, ic[6], ic[6]+.55));
+      const x = lerp(ic[4], ic[2], p), y = lerp(ic[5], ic[3], p);
+      el.style.opacity = p;
+      el.style.left = x+"px"; el.style.top = (y + Math.sin(t*2+i)*6)+"px";
+      el.style.transform = `scale(${lerp(.4,1,p)})`;
+      const bp = seg(t, ic[6]+.45, ic[6]+.75);
+      beam3Els[i].setAttribute("x1", x); beam3Els[i].setAttribute("y1", y + Math.sin(t*2+i)*6);
+      beam3Els[i].setAttribute("x2", lerp(x, PH3.x, bp)); beam3Els[i].setAttribute("y2", lerp(y, PH3.y, bp));
+      beam3Els[i].setAttribute("opacity", bp > 0 ? .85 : 0);
+      // particles flow icon -> phone
+      ddotEls[i].forEach((dd,j) => {
+        const act = t > ic[6]+.8 && t < 29.6;
+        const u = (t*.55 + j/3 + i*.13) % 1;
+        dd.style.opacity = act ? (1 - Math.abs(u-.5)*.6) : 0;
+        dd.style.left = (lerp(x, PH3.x, u) - 5)+"px";
+        dd.style.top = (lerp(y + Math.sin(t*2+i)*6, PH3.y, u) - 5)+"px";
+      });
+    });
+    // final checkmark
+    const cp = eb(seg(t, 29.5, 29.95));
+    $("chk3").style.opacity = Math.min(1, Math.max(0, cp));
+    $("chk3").style.transform = `scale(${Math.max(.001, cp)})`;
+    const cr = seg(t, 29.6, 30.5);
+    const crd = lerp(80, 900, eo(cr));
+    $("chk3ring").style.opacity = (cr > 0 && cr < 1) ? (1-cr) : 0;
+    $("chk3ring").style.width = $("chk3ring").style.height = crd+"px";
+    $("chk3ring").style.marginLeft = $("chk3ring").style.marginTop = (-crd/2)+"px";
+  }
+
+  /* ===== SHOT 4 (31-42): intelligent routing ===== */
+  if (t >= 30.9 && t < 42.3) {
+    $("s4").style.transform = `scale(${1 + .04*seg(t,31,42)})`;
+    $("k4").style.opacity = eo(seg(t, 31.3, 31.9));
+    // bundle panel
+    const bu = eb(seg(t, 31.6, 32.1));
+    $("bundle").style.opacity = Math.min(1, Math.max(0, bu));
+    $("bundle").style.transform = `scale(${Math.max(.001, bu)})`;
+    const bglow = t > 33.2 ? .5 + .5*Math.sin(t*3) : 0;
+    $("bundle").style.boxShadow = `0 0 ${40+26*bglow}px rgba(61,190,41,${.4+.25*bglow})`;
+    // fragments converge into bundle
+    fragEls.forEach((f,i) => {
+      const p = eio(seg(t, 31.9+i*.14, 32.9+i*.14));
+      const a = i*(Math.PI*2/6) + .5;
+      const x = lerp(415 + Math.cos(a)*430, 415, p);
+      const y = lerp(470 + Math.sin(a)*330, 470, p);
+      f.style.opacity = p < .92 ? Math.min(1, p*3) : (1-p)*12;
+      f.style.left = (x-37)+"px"; f.style.top = (y-37)+"px";
+      f.style.transform = `scale(${lerp(1,.3,p)})`;
+    });
+    // ticket chip
+    const tc = eb(seg(t, 33.7, 34.15));
+    $("tchip").style.opacity = Math.min(1, Math.max(0, tc)) * (1 - seg(t, 35.4, 35.7));
+    $("tchip").style.transform = `scale(${Math.max(.001, tc)})`;
+    // mid + spec nodes
+    const mn = eo(seg(t, 34.2, 34.8));
+    $("midnode").style.opacity = mn;
+    $("midnode").style.transform = `translateY(${lerp(70,0,mn)}px)`;
+    const sn = eo(seg(t, 34.6, 35.2));
+    $("spec").style.opacity = sn;
+    $("spec").style.transform = `translateY(${lerp(70,0,sn)}px)`;
+    // path draw
+    const pd4 = seg(t, 35.0, 36.2);
+    path4.setAttribute("stroke-dashoffset", lerp(1750, 0, eio(pd4)));
+    path4.setAttribute("opacity", pd4 > 0 ? .9 : 0);
+    path4.setAttribute("stroke-dasharray", pd4 < 1 ? "1750 1750" : "26 18");
+    // traveler + ghosts
+    const u = eio(seg(t, 35.4, 37.3));
+    const pos = bez4(u);
+    $("trav").style.opacity = (u > 0 && u < 1) ? 1 : 0;
+    $("trav").style.left = pos[0]+"px"; $("trav").style.top = pos[1]+"px";
+    ghost4s.forEach((g,i) => {
+      const gu = Math.max(0, u - (i+1)*.045);
+      const gp = bez4(gu);
+      g.style.opacity = (u > 0 && u < 1) ? .5 - i*.14 : 0;
+      g.style.left = gp[0]+"px"; g.style.top = gp[1]+"px";
+    });
+    // mid node rejected as ticket passes over
+    const mx = eb(seg(t, 36.3, 36.7));
+    $("midX").style.opacity = Math.min(1, Math.max(0, mx));
+    $("midX").style.transform = `scale(${Math.max(.001, mx)}) rotate(-8deg)`;
+    const mflash = t > 36.3 && t < 37.6 ? .5 + .5*Math.sin(t*10) : 0;
+    $("midnode").style.boxShadow = `0 0 ${40+50*mflash}px rgba(255,59,47,${.35+.4*mflash})`;
+    $("midnode").style.filter = t > 37.6 ? "brightness(.55) saturate(.7)" : "none";
+    // arrival
+    const arr = t > 37.3;
+    const aglow = arr ? .5 + .5*Math.sin(t*4) : 0;
+    $("spec").style.boxShadow = `0 0 ${40+50*aglow}px rgba(61,190,41,${.4+.35*aglow})`;
+    const sc4 = eb(seg(t, 37.4, 37.8));
+    $("schk").style.opacity = Math.min(1, Math.max(0, sc4));
+    $("schk").style.transform = `scale(${Math.max(.001, sc4)})`;
+    // caption pills
+    [38.4, 39.4, 40.4].forEach((pt,i) => {
+      const p = eb(seg(t, pt, pt+.45));
+      const el = $("pl"+i);
+      el.style.opacity = Math.min(1, Math.max(0, p));
+      el.style.transform = `translateY(${lerp(60,0,Math.min(1,Math.max(0,p)))}px) scale(${Math.max(.001,Math.min(1.06,p))})`;
+    });
+  }
+
+  /* ===== SHOT 5 (42-48): every issue captured ===== */
+  if (t >= 41.9 && t < 48.3) {
+    $("s5").style.transform = `scale(${1 + .05*seg(t,42,48)})`;
+    const toG = seg(t, 44.8, 46.2);
+    $("s5bgG").style.opacity = toG;
+    // photo frame
+    const fin = eo(seg(t, 42.3, 43.0));
+    $("s5frame").style.opacity = fin;
+    $("s5frame").style.transform = `translateY(${lerp(60,0,fin)}px) scale(${1 + .04*seg(t,42.3,48)})`;
+    $("s5frame").style.borderColor = toG > .5 ? "#5cff3d" : "#ff3b2f";
+    $("s5frame").style.boxShadow = toG > .5 ? "0 0 60px rgba(92,255,61,.45)" : "0 0 60px rgba(255,59,47,.4)";
+    $("s5tint").style.background = `rgba(${lerp(255,61,toG)},${lerp(59,190,toG)},${lerp(47,41,toG)},.16)`;
+    // flip card
+    const cin = eo(seg(t, 43.2, 43.8));
+    const f1 = seg(t, 44.6, 45.05);      // front collapses
+    const f2 = seg(t, 45.05, 45.5);      // back expands
+    $("fFront").style.opacity = cin * (f1 < 1 ? 1 : 0);
+    $("fFront").style.transform = `translateY(${lerp(50,0,cin)}px) scaleY(${1-f1})`;
+    $("fBack").style.opacity = f2 > 0 ? 1 : 0;
+    $("fBack").style.transform = `scaleY(${f2})`;
+    // big check
+    const bc = eb(seg(t, 45.8, 46.25));
+    $("bigchk5").style.opacity = Math.min(1, Math.max(0, bc));
+    $("bigchk5").style.transform = `scale(${Math.max(.001, bc)})`;
+    // caption
+    const cap = eo(seg(t, 46.4, 47.0));
+    $("s5cap").style.opacity = cap;
+    $("s5cap").style.transform = `translateY(${lerp(30,0,cap)}px)`;
+  }
+
+  /* ===== SHOT 6 (48-80): live ticket ===== */
+  if (t >= 47.9 && t < 80.3) {
+    $("s6").style.transform = `scale(${1 + .07*seg(t,48,80)})`;
+    $("k6").style.opacity = eo(seg(t, 48.4, 49.0));
+    const pn = eo(seg(t, 48.6, 49.4));
+    $("tpanel").style.opacity = pn;
+    $("tpanel").style.transform = `translateY(${lerp(70,0,pn)}px)`;
+    $("live6").style.opacity = .55 + .45*Math.sin(t*4);
+    $("scan6").style.top = (140 + ((t*140) % 760) - 90)+"px";
+    // rows build + typewriter
+    TCUE.forEach((cue,i) => {
+      const rp = eo(seg(t, cue, cue+.5));
+      const row = $("tr"+i);
+      row.style.opacity = rp;
+      row.style.transform = `translateX(${lerp(-40,0,rp)}px)`;
+      const val = TVALS[i];
+      const n = Math.floor(seg(t, cue+.5, cue+.5+val.length*.055) * val.length);
+      const done = n >= val.length;
+      let html = "";
+      if (i === 1 && n > 0) html = `<span id="dotInv" style="opacity:${.55+.45*Math.sin(t*5)}"></span>`;
+      html += val.slice(0, n).replace("&","&amp;");
+      if (!done && rp >= 1) html += `<span class="cur" style="opacity:${Math.sin(t*10)>0?1:0}"></span>`;
+      $("tv"+i).innerHTML = html;
+      if (done) $("tv"+i).style.color = i === 3 ? "#ffd39a" : (i === 0 ? "#eef5ec" : "#c9f2bf");
+      row.style.borderColor = done ? "#3a5a30" : "#24361f";
+    });
+    // right checklist — each lights up as the matching ticket row completes
+    [52.5, 60.5, 65.5, 70.5].forEach((cue,i) => {
+      const p = eo(seg(t, cue, cue+.55));
+      const el = $("c6"+i);
+      el.style.opacity = p;
+      el.style.transform = `translateX(${lerp(70,0,p)}px)`;
+      el.querySelector(".cc").style.transform = `scale(${lerp(.2,1,eb(seg(t,cue+.15,cue+.6)))})`;
+    });
+    // badge
+    const bd = eb(seg(t, 77.2, 77.7));
+    $("badge6").style.opacity = Math.min(1, Math.max(0, bd));
+    $("badge6").style.transform = `scale(${Math.max(.001, Math.min(1.04, bd))})`;
+    const bglow6 = t > 77.7 ? .5 + .5*Math.sin(t*3.4) : 0;
+    $("badge6").style.boxShadow =
+      `0 0 ${60+40*bglow6}px rgba(92,255,61,${.4+.3*bglow6}), inset 0 0 40px rgba(92,255,61,.12)`;
+  }
+
+  /* ===== SHOT 7 (80-97.5): the shift ===== */
+  if (t >= 79.9 && t < 97.8) {
+    $("s7").style.transform = `scale(${1 + .04*seg(t,80,97.5)})`;
+    $("k7").style.opacity = eo(seg(t, 80.4, 81.0));
+    // reactive panel
+    const rp = eo(seg(t, 80.9, 81.7));
+    $("reac").style.opacity = rp;
+    $("reac").style.transform = `translateX(${lerp(-90,0,rp)}px)`;
+    $("reac").style.filter = t > 90 ? `brightness(${1 - .4*seg(t,90,92)}) saturate(${1 - .4*seg(t,90,92)})` : "none";
+    rdots.forEach((d,i) => {
+      const on = eo(seg(t, 81.6+i*.22, 81.9+i*.22));
+      d.style.opacity = on * (.45 + .55*(Math.sin(t*3 + i*2) > .2 ? 1 : .3));
+      d.style.transform = `scale(${lerp(.3,1,on)})`;
+    });
+    // arrow
+    const ar = eb(seg(t, 84.8, 85.3));
+    $("arr7").style.opacity = Math.min(1, Math.max(0, ar));
+    $("arr7").style.transform = `scale(${Math.max(.001, ar)})`;
+    // proactive panel
+    const gp = eo(seg(t, 85.6, 86.4));
+    $("proa").style.opacity = gp;
+    $("proa").style.transform = `translateX(${lerp(90,0,gp)}px)`;
+    const hb = eo(seg(t, 86.6, 88.0));
+    $("heat").style.opacity = hb*.95;
+    $("heat").style.transform = `scale(${lerp(.2,1,hb) * (1 + .06*Math.sin(t*2.6))})`;
+    radars.forEach((r,i) => {
+      const cyc = (t - 87 - i*.75) % 2.25;
+      const p = seg(cyc, 0, 1.9);
+      const act = t > 87 + i*.75;
+      const d = lerp(20, 560, p);
+      r.style.opacity = act && p < 1 ? (1-p)*.9 : 0;
+      r.style.width = r.style.height = d+"px";
+      r.style.marginLeft = r.style.marginTop = (-d/2)+"px";
+    });
+    gdots7.forEach((d,i) => {
+      const on = eo(seg(t, 87.5+i*.18, 87.8+i*.18));
+      d.style.opacity = on * (.5 + .5*Math.sin(t*2.4 + i*1.7));
+    });
+    const co = eb(seg(t, 89.6, 90.1));
+    $("callout").style.opacity = Math.min(1, Math.max(0, co));
+    $("callout").style.transform = `scale(${Math.max(.001, co)})`;
+    const cap7 = eo(seg(t, 92.6, 93.3));
+    $("s7cap").style.opacity = cap7;
+    $("s7cap").style.transform = `translateY(${lerp(30,0,cap7)}px)`;
+  }
+
+  /* ===== SHOT 8 (97.5-108): benefits ===== */
+  if (t >= 97.4 && t < 108.3) {
+    $("s8").style.transform = `scale(${1 + .04*seg(t,97.5,108)})`;
+    $("k8").style.opacity = eo(seg(t, 97.9, 98.5));
+    $("div8").style.opacity = eo(seg(t, 98.2, 98.9));
+    const lp = eo(seg(t, 98.0, 98.9));
+    $("bcust").style.opacity = lp;
+    $("bcust").style.transform = `translateX(${lerp(-110,0,lp)}px)`;
+    const rp8 = eo(seg(t, 98.3, 99.2));
+    $("bsaf").style.opacity = rp8;
+    $("bsaf").style.transform = `translateX(${lerp(110,0,rp8)}px)`;
+    [...document.querySelectorAll("#bcust .brow")].forEach((el,i) => {
+      const p = eo(seg(t, 99.6+i*1.0, 100.2+i*1.0));
+      el.style.opacity = p;
+      el.style.transform = `translateY(${lerp(50,0,p)}px)`;
+      el.querySelector(".bck").style.transform = `scale(${lerp(.2,1,eb(seg(t, 99.9+i*1.0, 100.4+i*1.0)))})`;
+    });
+    [...document.querySelectorAll("#bsaf .brow")].forEach((el,i) => {
+      const p = eo(seg(t, 99.9+i*.9, 100.5+i*.9));
+      el.style.opacity = p;
+      el.style.transform = `translateY(${lerp(50,0,p)}px)`;
+      el.querySelector(".bck").style.transform = `scale(${lerp(.2,1,eb(seg(t, 100.2+i*.9, 100.7+i*.9)))})`;
+    });
+    const cap8 = eo(seg(t, 105.3, 106.0));
+    $("s8cap").style.opacity = cap8;
+    $("s8cap").style.transform = `translateY(${lerp(26,0,cap8)}px)`;
+  }
+
+  /* ===== SHOT 9 (108-130): business case ===== */
+  if (t >= 107.9 && t < 130.3) {
+    $("s9").style.transform = `scale(${1 + .04*seg(t,108,130)})`;
+    $("k9").style.opacity = eo(seg(t, 108.4, 109.0));
+    const rp9 = eo(seg(t, 108.9, 109.7));
+    $("ccr").style.opacity = rp9;
+    $("ccr").style.transform = `translateX(${lerp(-90,0,rp9)}px)`;
+    $("ccr").style.filter = t > 118 ? `brightness(${1 - .45*seg(t,118,120)}) saturate(${1 - .5*seg(t,118,120)})` : "none";
+    [...document.querySelectorAll("#ccr .crow9")].forEach((el,i) => {
+      const p = eo(seg(t, 109.6+i*.8, 110.1+i*.8));
+      el.style.opacity = p;
+      el.style.transform = `translateX(${lerp(-40,0,p)}px)`;
+    });
+    const ar9 = eb(seg(t, 113.8, 114.3));
+    $("arr9").style.opacity = Math.min(1, Math.max(0, ar9));
+    $("arr9").style.transform = `scale(${Math.max(.001, ar9)})`;
+    const gp9 = eo(seg(t, 114.4, 115.2));
+    $("pde").style.opacity = gp9;
+    $("pde").style.transform = `translateX(${lerp(90,0,gp9)}px)`;
+    const pglow = t > 119 ? .5 + .5*Math.sin(t*2.6) : 0;
+    $("pde").style.boxShadow = `0 0 ${44+30*pglow}px rgba(92,255,61,${.35+.25*pglow})`;
+    [...document.querySelectorAll("#pde .crow9")].forEach((el,i) => {
+      const p = eo(seg(t, 115.1+i*.75, 115.6+i*.75));
+      el.style.opacity = p;
+      el.style.transform = `translateX(${lerp(40,0,p)}px)`;
+    });
+    // charts
+    ["ch1","ch2","ch3"].forEach((id,i) => {
+      const p = eo(seg(t, 120.0+i*.4, 120.7+i*.4));
+      $(id).style.opacity = p;
+      $(id).style.transform = `translateY(${lerp(80,0,p)}px)`;
+    });
+    // bars: ch1/ch2 shrink red->green, ch3 grows
+    const H1 = [150, 128, 104, 78, 52], H2 = [140, 122, 96, 72, 48], H3 = [52, 76, 102, 128, 152];
+    BARS1.forEach((b,i) => {
+      const p = eio(seg(t, 121.2+i*.5, 122.2+i*.5));
+      b.style.height = lerp(150, H1[i]*.9, p)+"px";
+      b.style.background = `linear-gradient(180deg, rgb(${lerp(255,92,p)},${lerp(80,255,p)},${lerp(60,61,p)}), rgb(${lerp(180,47,p)},${lerp(40,158,p)},${lerp(30,30,p)}))`;
+      b.style.boxShadow = `0 0 16px rgba(${lerp(255,92,p)},${lerp(80,255,p)},${lerp(60,61,p)},.45)`;
+    });
+    BARS2.forEach((b,i) => {
+      const p = eio(seg(t, 121.5+i*.5, 122.5+i*.5));
+      b.style.height = lerp(145, H2[i]*.85, p)+"px";
+      b.style.background = `linear-gradient(180deg, rgb(${lerp(255,92,p)},${lerp(80,255,p)},${lerp(60,61,p)}), rgb(${lerp(180,47,p)},${lerp(40,158,p)},${lerp(30,30,p)}))`;
+      b.style.boxShadow = `0 0 16px rgba(${lerp(255,92,p)},${lerp(80,255,p)},${lerp(60,61,p)},.45)`;
+    });
+    BARS3.forEach((b,i) => {
+      const p = eio(seg(t, 121.8+i*.5, 122.8+i*.5));
+      b.style.height = Math.max(6, lerp(6, H3[i], p))+"px";
+      b.style.background = "linear-gradient(180deg, #5cff3d, #2f9e1e)";
+      b.style.boxShadow = "0 0 16px rgba(92,255,61,.45)";
+    });
+    const cap9 = eo(seg(t, 126.6, 127.3));
+    $("s9cap").style.opacity = cap9;
+    $("s9cap").style.transform = `translateY(${lerp(26,0,cap9)}px)`;
+  }
+
+  /* ===== SHOT 10 (130-144): the statement ===== */
+  if (t >= 129.9 && t < 144.3) {
+    $("s10").style.transform = `scale(${1 + .11*seg(t,130,144)})`;
+    $("ph10").style.transform = `scale(${1 + .35*seg(t,130,144)})`;
+    p10s.forEach((p,i) => {
+      p.style.transform = `translate(${Math.sin(t*.35+i)*16}px, ${Math.cos(t*.28+i*1.7)*14}px)`;
+    });
+    const ST = [[ "st1",130.6,133.4 ], [ "st2",134.0,136.9 ], [ "st3",137.4,140.3 ], [ "st4",140.8,999 ]];
+    ST.forEach(cfg => {
+      const inn = eo(seg(t, cfg[1], cfg[1]+.55));
+      const out = seg(t, cfg[2], cfg[2]+.55);
+      const el = $(cfg[0]);
+      el.style.opacity = inn * (1-out);
+      el.style.transform = `translateY(${lerp(30,0,inn) - out*36}px) scale(${lerp(.96,1,inn)})`;
+    });
+    if (t > 142) {
+      const g = .5 + .5*Math.sin(t*2.4);
+      $("st4").style.textShadow = `0 0 ${30+30*g}px rgba(92,255,61,${.3+.35*g})`;
+    }
+  }
+
+  /* ===== SHOT 11 (144-149): final tagline ===== */
+  if (t >= 143.9) {
+    // phase A: button press — photo enters centered, then glides left for the end card
+    const pin = eo(seg(t, 144.05, 144.5));
+    const punch = t >= 144.7 && t < 145.0 ? 1 - .05*Math.sin(seg(t,144.7,145.0)*Math.PI) : 1;
+    const im = $("s11img");
+    im.style.opacity = pin;
+    im.style.left = lerp(745, 150, eio(seg(t, 145.5, 146.3)))+"px";
+    im.style.transform = `scale(${(1.0 + .05*seg(t,144.05,145.6)) * punch})`;
+    rip11s.forEach((r,i) => {
+      const p = seg(t, 144.9 + i*.14, 145.6 + i*.14);
+      const d = lerp(80, 2500, eo(p));
+      r.style.opacity = (p > 0 && p < 1) ? (1-p) : 0;
+      r.style.width = r.style.height = d+"px";
+      r.style.left = (960 - d/2)+"px"; r.style.top = (500 - d/2)+"px";
+    });
+    const fp = seg(t, 145.05, 145.5);
+    $("flash11").style.opacity = fp > 0 && fp < 1 ? Math.sin(fp*Math.PI)*.9 : 0;
+    // phase B: logo + taglines
+    ["l11a","l11b","l11c"].forEach((id,i) => {
+      const p = eo(seg(t, 145.8+i*.15, 146.3+i*.15));
+      $(id).style.opacity = p;
+      $(id).style.transform = `translateY(${lerp(36,0,p)}px) scale(${lerp(1.25,1,p)})`;
+    });
+    [...document.querySelectorAll(".tag11")].forEach((el,i) => {
+      const p = eo(seg(t, 146.6+i*.6, 147.1+i*.6));
+      el.style.opacity = p;
+      el.style.transform = `translateX(${lerp(60,0,p)}px)`;
+      el.querySelector(".tc").style.transform = `scale(${lerp(.2,1,eb(seg(t,146.75+i*.6,147.2+i*.6)))})`;
+    });
+    const sf = eo(seg(t, 148.2, 148.7));
+    $("saf11").style.opacity = sf;
+    $("saf11").style.transform = `translateY(${lerp(24,0,sf)}px)`;
+    const bl = eo(seg(t, 148.4, 148.9));
+    $("bot11").style.opacity = bl;
+    $("bot11").style.transform = `translateY(${lerp(24,0,bl)}px)`;
+    $("s11").style.transform = `scale(${1 + .02*seg(t,145.8,149.2)})`;
+  }
+}
+
+/* ---------- driver ---------- */
+const q = new URLSearchParams(location.search);
+if (q.has("freeze")) {
+  render(parseFloat(q.get("freeze")) || 0);
+  document.title = "Scene5Frozen";
+} else {
+  const t0 = performance.now();
+  (function loop() {
+    const t = (performance.now() - t0) / 1000;
+    render(Math.min(t, 149.2));
+    if (t < 149.3) requestAnimationFrame(loop);
+  })();
+}
+</script>
+</body>
+</html>
