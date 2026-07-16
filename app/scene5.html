@@ -52,6 +52,7 @@
     gap:16px; padding:0 20px; margin-top:17px; background:rgba(18,36,20,.55);
     font-size:24px; font-weight:700; color:#dff0da; opacity:0; }
   .mrow .mi { font-size:34px; }
+  #pg1b .mrow { font-size:20px; line-height:1.15; }
   #pg2 .shield { text-align:center; font-size:74px; margin-top:2px; }
   #pg2 .ct { text-align:center; font-size:27px; font-weight:800; color:#eef5ec; margin-top:6px; }
   #pg2 .note { font-size:17px; color:#9fb3a2; text-align:center; margin-top:8px; line-height:1.35; padding:0 8px; }
@@ -367,10 +368,16 @@
         <div class="pg" id="pg1">
           <div class="app">My OneApp</div>
           <div class="ttl">Report an Issue</div>
+          <div class="mrow"><span class="mi">📶</span>Network &amp; Data</div>
           <div class="mrow"><span class="mi">📱</span>SIM Toolkit / M-PESA</div>
           <div class="mrow"><span class="mi">🧾</span>Till Number Issues</div>
-          <div class="mrow"><span class="mi">📶</span>Network &amp; Data</div>
           <div class="mrow"><span class="mi">⚠️</span>Report Fraud</div>
+        </div>
+        <div class="pg" id="pg1b">
+          <div class="app">My OneApp</div>
+          <div class="ttl">Network &amp; Data</div>
+          <div class="mrow"><span class="mi">📞</span>Voice Connection Issues</div>
+          <div class="mrow"><span class="mi">🌐</span>Internet Connectivity Issues</div>
         </div>
         <div class="pg" id="pg2">
           <div class="shield">🛡️</div>
@@ -606,7 +613,7 @@ const rip1s = [];
   }
 }
 // S2 tap ripples: [x,y,time] in phone coords
-const TAPS = [[195,200,12.3],[195,615,15.4],[195,455,17.1]];
+const TAPS = [[195,200,11.45],[195,200,13.45],[195,615,15.9],[195,455,17.4]];
 const tapEls = [];
 {
   const host = $("taphost");
@@ -697,9 +704,9 @@ const ghost4s = [];
 }
 // S6 ticket values
 const TVALS = [
-  "Can't access Lipa Na M-PESA",
+  "Network Connectivity Issue",
   "Investigating",
-  "SIM Toolkit Services",
+  "Network Operations",
   "Error 504 — SIM Card Timeout",
   "3 Hours"
 ];
@@ -840,39 +847,52 @@ function render(t) {
     $("ph2wrap").style.transform = `rotateY(${lerp(62, sway, pin)}deg) translateY(${lerp(60,0,pin)}px) scale(${lerp(.85,1,pin)})`;
     // menu rows bounce in
     [...document.querySelectorAll("#pg1 .mrow")].forEach((el,i) => {
-      const p = seg(t, 10.4+i*.45, 10.85+i*.45);
+      const p = seg(t, 10.2+i*.32, 10.65+i*.32);
       el.style.opacity = Math.min(1, p*1.4);
       el.style.transform = `translateY(${lerp(46,0,eb(p))}px) scale(${lerp(.75,1,eb(p))})`;
-      if (i === 0 && t > 12.35) {
+      if (i === 0 && t > 11.5) {
+        el.style.borderColor = "#5cff3d";
+        el.style.boxShadow = "0 0 26px rgba(92,255,61,.55)";
+        el.style.background = "rgba(38,80,30,.75)";
+      }
+    });
+    // submenu rows bounce in
+    [...document.querySelectorAll("#pg1b .mrow")].forEach((el,i) => {
+      const p = seg(t, 12.5+i*.35, 12.95+i*.35);
+      el.style.opacity = Math.min(1, p*1.4);
+      el.style.transform = `translateY(${lerp(46,0,eb(p))}px) scale(${lerp(.75,1,eb(p))})`;
+      if (i === 0 && t > 13.5) {
         el.style.borderColor = "#5cff3d";
         el.style.boxShadow = "0 0 26px rgba(92,255,61,.55)";
         el.style.background = "rgba(38,80,30,.75)";
       }
     });
     // page transitions
-    const sl1 = eio(seg(t, 12.9, 13.4));   // pg1 -> pg2
-    const sl2 = eio(seg(t, 15.9, 16.4));   // pg2 -> pg3
-    $("pg1").style.transform = `translateX(${-sl1*106}%)`;
-    $("pg2").style.transform = `translateX(${(1-sl1)*106 - sl2*106}%)`;
-    $("pg3").style.transform = `translateX(${(1-sl2)*106}%)`;
+    const sl1  = eio(seg(t, 11.9, 12.4));   // pg1 -> pg1b
+    const sl1b = eio(seg(t, 13.9, 14.4));   // pg1b -> pg2
+    const sl2  = eio(seg(t, 16.4, 16.9));   // pg2 -> pg3
+    $("pg1").style.transform  = `translateX(${-sl1*106}%)`;
+    $("pg1b").style.transform = `translateX(${(1-sl1)*106 - sl1b*106}%)`;
+    $("pg2").style.transform  = `translateX(${(1-sl1b)*106 - sl2*106}%)`;
+    $("pg3").style.transform  = `translateX(${(1-sl2)*106}%)`;
     // consent rows
     [...document.querySelectorAll("#pg2 .crow")].forEach((el,i) => {
-      const p = eo(seg(t, 13.6+i*.25, 13.95+i*.25));
+      const p = eo(seg(t, 14.5+i*.22, 14.85+i*.22));
       el.style.opacity = p;
       el.style.transform = `translateX(${lerp(30,0,p)}px)`;
     });
     // allow button press flash
-    $("btnAllow").style.boxShadow = (t > 15.4 && t < 15.75)
+    $("btnAllow").style.boxShadow = (t > 15.9 && t < 16.25)
       ? "0 0 60px rgba(92,255,61,.95)" : "0 0 30px rgba(61,190,41,.45)";
     // submit pulse
-    const spulse = t > 16.4 ? .5 + .5*Math.sin((t-16.4)*6) : 0;
+    const spulse = t > 16.9 ? .5 + .5*Math.sin((t-16.9)*6) : 0;
     $("btnSub").style.boxShadow = `0 0 ${30+40*spulse}px rgba(92,255,61,${.4+.45*spulse})`;
     // success
-    const su = eo(seg(t, 17.5, 17.9));
+    const su = eo(seg(t, 17.8, 18.2));
     $("suc2").style.opacity = su;
-    $("suc2").querySelector(".sc").style.transform = `scale(${Math.max(.001, eb(seg(t,17.55,18.0)))})`;
+    $("suc2").querySelector(".sc").style.transform = `scale(${Math.max(.001, eb(seg(t,17.85,18.3)))})`;
     sdots.forEach((d,i) => {
-      const p = seg(t, 17.55, 18.35);
+      const p = seg(t, 17.85, 18.65);
       const a = i*(Math.PI*2/10);
       d.style.opacity = (p > 0 && p < 1) ? (1-p) : 0;
       d.style.left = (195 + Math.cos(a)*eo(p)*210)+"px";
@@ -889,7 +909,7 @@ function render(t) {
       });
     });
     // workflow lights
-    const WT = [12.5, 15.5, 17.25, 18.1];
+    const WT = [11.6, 16.0, 17.55, 18.4];
     WT.forEach((wt,i) => {
       const on = eo(seg(t, wt, wt+.4));
       const el = $("w"+i);
