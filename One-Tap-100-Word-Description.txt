@@ -1,0 +1,3 @@
+One-Tap Telco Problem Reporter — 100-word solution description (for finals intro board)
+
+One-Tap Telco Problem Reporter is a diagnostic-first support experience built into My OneApp and SIM Toolkit. Instead of calling customer care, customers report an issue — M-PESA, network, till number, or fraud — with a single tap. The platform automatically captures the diagnostics engineers need: device and SIM status, network signal, service status, and error codes. Each report becomes a data-rich ticket routed instantly to the right specialist team, with live status tracking and a resolution ETA. No queues, no guesswork, no repeated explanations. Every issue is captured — even if no agent is ever reached — turning reactive support into proactive, data-driven resolution.

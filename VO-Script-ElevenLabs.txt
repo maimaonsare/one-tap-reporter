@@ -1,0 +1,66 @@
+ONE-TAP TELCO PROBLEM REPORTER — 60s Judges' Intro Video
+Voiceover script for ElevenLabs
+Video file this is timed against: One-Tap-Telco-Intro-60s.mp4 (59.5s total)
+
+Paste each block into ElevenLabs separately (as 4 generations), not all at once —
+this keeps each section's pacing controllable and matches the 4 visual cuts in the edited video.
+Target duration is listed for each block. If ElevenLabs renders noticeably longer/shorter,
+adjust the "Speed" slider (in Generation Settings) rather than editing the words, so the
+sentences still line up with the on-screen cards.
+
+Recommended settings: Model = Eleven Multilingual v2 or Turbo v2.5. Stability ~40-50%,
+Similarity ~75%. Pick a confident, warm male or female voice (e.g. "Adam," "Charlie," or
+"Sarah" from the ElevenLabs default library work well for this energetic-but-clear tone).
+
+=================================================================
+BLOCK 1 — THE PAIN
+Video: 0:00–0:13 (target ~13.0 seconds)
+=================================================================
+Every day, millions of customers experience network issues, failed M-PESA transactions, or service disruptions.
+
+They call customer care... wait in long queues... and repeat the same story over and over.
+
+Yet the engineers still don't have the technical data they need.
+
+=================================================================
+BLOCK 2 — INTRODUCE ONE-TAP
+Video: 0:13–0:22 (target ~9.0 seconds)
+=================================================================
+Introducing One-Tap Telco Problem Reporter.
+
+A diagnostic-first support experience built into My OneApp and SIM Toolkit that lets customers report telecom issues with just one tap.
+
+=================================================================
+BLOCK 3 — HOW IT WORKS
+Video: 0:22–0:42 (target ~20.0 seconds)
+=================================================================
+Instead of asking customers to explain technical problems...
+
+One-Tap automatically captures device status, SIM information, network diagnostics, service status, and error codes.
+
+The platform packages everything into a rich diagnostic ticket... and intelligently routes it to the right engineering team.
+
+Customers receive real-time ticket tracking and an estimated resolution time — without ever calling customer care.
+
+=================================================================
+BLOCK 4 — IMPACT + TEAM
+Video: 0:42–0:59.5 (target ~17.5 seconds)
+=================================================================
+The result?
+
+Faster diagnosis. Faster resolution. Lower support costs. Better customer experience.
+
+One-Tap transforms telecom support from reactive to proactive... from conversation-first to diagnostic-first.
+
+We are Team One-Tap Telco Problem Reporter. Thank you.
+
+=================================================================
+FULL SCRIPT (single block, if you'd rather generate it all in one pass)
+=================================================================
+Every day, millions of customers experience network issues, failed M-PESA transactions, or service disruptions. They call customer care... wait in long queues... and repeat the same story over and over. Yet the engineers still don't have the technical data they need.
+
+Introducing One-Tap Telco Problem Reporter. A diagnostic-first support experience built into My OneApp and SIM Toolkit that lets customers report telecom issues with just one tap.
+
+Instead of asking customers to explain technical problems... One-Tap automatically captures device status, SIM information, network diagnostics, service status, and error codes. The platform packages everything into a rich diagnostic ticket... and intelligently routes it to the right engineering team. Customers receive real-time ticket tracking and an estimated resolution time — without ever calling customer care.
+
+The result? Faster diagnosis. Faster resolution. Lower support costs. Better customer experience. One-Tap transforms telecom support from reactive to proactive... from conversation-first to diagnostic-first. We are Team One-Tap Telco Problem Reporter. Thank you.
